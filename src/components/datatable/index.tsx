@@ -1,28 +1,22 @@
-import { Component, ReactNode, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { ReactNode, useEffect, useState } from 'react';
 import { DataTable } from 'mantine-datatable';
 import { downloadExcel } from 'react-export-table-to-excel';
+import IconFile from '@/components/Icon/IconFile';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { setPageTitle } from '@/store/themeConfigSlice';
-import IconFile from '../Icon/IconFile';
-import IconPrinter from '../Icon/IconPrinter';
 import formatDateToLongForm from '@/utils/DateFormattter';
 
-export type TableColumn<Entry> = {
+
+export type TableColumnV2<Entry> = {
     title: string;
     accessor: string;
     sortable?: boolean;
-    tableName?:string;
     textAlign?: string;
-    render: (row: Entry, index: number) => ReactNode;
-};
-export type FilterEntry<Entry> = {
     render: (row: Entry, index: number) => ReactNode;
 };
 
 type DataTableProps<Entry> = {
-    tableName: any;
-    columns: TableColumn<Entry>[];
+    tableName: string; // New prop for table name
+    columns: TableColumnV2<Entry>[];
     data: Entry[];
     total: number;
     currentPage: number;
@@ -30,65 +24,74 @@ type DataTableProps<Entry> = {
     previousPage: number;
     lastPage: number;
     isLoading: boolean;
-    filterComponent: ReactNode;
+    header?: JSX.Element;
 };
-
-export default function ExportDataTable<Entry extends {}>(
+export default function DataTableV2<Entry extends {}>(
     props: DataTableProps<Entry>
 ) {
-    const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(setPageTitle('Table'));
-    });
-    const PAGE_SIZES = [10, 20, 30, 50, 100];
+    const all: any = 'View all';
+
+    const PAGE_SIZES = [10, 20, 30, 50, 100, all];
 
     const [search, setSearch] = useState('');
-  
-    function formatDateToDDMMYY(date:any) {
-        const options:any = { year: '2-digit', month: '2-digit', day: '2-digit' };
-        return new Intl.DateTimeFormat('en-US', options).format(date);
-    }
-    
     function handleDownloadExcel() {
+        const tableName: string = `${
+            props.tableName
+        } - ${new Date().toLocaleString()}`;
+        const fileName = 'table';
+        const sheet = 'react-export-table-to-excel';
+
         const filteredColumns = props.columns.filter(
             column => column.accessor !== 'actions'
         );
-    
-        downloadExcel({
-            fileName: `Table_${props.tableName}_${new Date().toLocaleString()}`,
-            sheet: 'react-export-table-to-excel',
-            tablePayload: {
-                header: filteredColumns.map(header => header.title),
-                body: props.data.map(row =>
-                    filteredColumns.map(column => {
-                        const cellValue = extractNestedValue(row, column.accessor);
-                        let formattedValue = cellValue;
-    
-                        // Check if the column is 'created_at' and format it to 'ddmmyy'
-                        if (column.accessor === 'created_at' ) {
-                            formattedValue = formatDateToLongForm(cellValue);
+
+        const formatDate = (date: string) => {
+            const [year, month, day] = date.split('-');
+            return `${day}-${month}-${year.slice(-2)}`;
+        };
+
+        const tablePayload = {
+            header: filteredColumns.map(header => header.title),
+            body: props.data.map(rowData => {
+                const row: any = {};
+                filteredColumns.forEach(column => {
+                    const accessorKeys: any = column.accessor.split('.');
+                    let value: any = rowData;
+                    accessorKeys.forEach((key: string) => {
+                        if (
+                            value &&
+                            typeof value === 'object' &&
+                            value.hasOwnProperty(key)
+                        ) {
+                            if (
+                                typeof value[key] === 'string' &&
+                                value[key].match(/\d{4}-\d{2}-\d{2}/)
+                            ) {
+                                value[key] = formatDateToLongForm(value[key]);
+                            }
+                            value = value[key];
+                        } else {
+                            value = '';
                         }
-    
-                        return formattedValue;
-                    })
-                ),
-            },
+                    });
+                    row[column.title] = value || '';
+                });
+                return row;
+            }),
+        };
+
+        downloadExcel({
+            fileName: tableName,
+            sheet,
+            tablePayload,
         });
     }
-    
 
-    const extractNestedValue = (obj: any, accessor: string) => {
-        const keys = accessor.split('.');
-        return keys.reduce(
-            (acc, key) => (acc && acc[key] !== undefined ? acc[key] : ''),
-            obj
-        );
-    };
     const exportTable = (type: any) => {
         let columns: any = props.columns
             .map(item => item.accessor)
             .filter(value => value !== 'actions');
-       let filename = `Table_${props.tableName}_${new Date().toLocaleString()}`;
+        let filename = 'table';
 
         let newVariable: any;
         newVariable = window.navigator;
@@ -136,18 +139,11 @@ export default function ExportDataTable<Entry extends {}>(
         } else if (type === 'print') {
             var rowhtml = '<p>' + filename + '</p>';
             rowhtml +=
-                '<table style="width: 100%; " cellpadding="0" cellspacing="0"><thead><tr style="color: #515365; background: #eff5ff; -webkit-print-color-adjust: exact; print-color-adjust: exact; "> ';
-
-            // Use props.columns instead of columns to get the correct accessor strings
-            props.columns.map((column: any) => {
-                if (column.accessor !== 'actions') {
-                    // Exclude 'actions' column
-                    // Clean up accessor string (replace dots with spaces)
-                    const cleanedHeader = column.accessor.replace(/\./g, ' ');
-                    rowhtml += '<th>' + capitalize(cleanedHeader) + '</th>';
-                }
+                '<table style="width: 100%; " cellpadding="0" cellcpacing="0"><thead><tr style="color: #515365; background: #eff5ff; -webkit-print-color-adjust: exact; print-color-adjust: exact; "> ';
+            // eslint-disable-next-line array-callback-return
+            columns.map((d: any) => {
+                rowhtml += '<th>' + capitalize(d) + '</th>';
             });
-
             rowhtml += '</tr></thead>';
             rowhtml += '<tbody>';
 
@@ -155,17 +151,13 @@ export default function ExportDataTable<Entry extends {}>(
             props.data.map((item: any) => {
                 rowhtml += '<tr>';
                 // eslint-disable-next-line array-callback-return
-                props.columns.map((column: any) => {
-                    if (column.accessor !== 'actions') {
-                        // Exclude 'actions' column
-                        let val = extractNestedValue(item, column.accessor);
-                        console.log(val);
-                        rowhtml += '<td>' + val + '</td>';
-                    }
+                columns.map((d: any, index: any) => {
+                    let val = item[columns[index]];
+                    console.log(val);
+                    rowhtml += '<td>' + val + '</td>';
                 });
                 rowhtml += '</tr>';
             });
-
             rowhtml +=
                 '<style>body {font-family:Arial; color:#495057;}p{text-align:center;font-size:18px;font-weight:bold;margin:15px;}table{ border-collapse: collapse; border-spacing: 0; }th,td{font-size:12px;text-align:left;padding: 4px;}th{padding:8px 4px;}tr:nth-child(2n-1){background:#f7f7f7; }</style>';
             rowhtml += '</tbody></table>';
@@ -178,6 +170,46 @@ export default function ExportDataTable<Entry extends {}>(
             winPrint.document.close();
             winPrint.focus();
             winPrint.print();
+        } else if (type === 'txt') {
+            let coldelimiter = ',';
+            let linedelimiter = '\n';
+            let result = columns
+                .map((d: any) => {
+                    return capitalize(d);
+                })
+                .join(coldelimiter);
+            result += linedelimiter;
+            // eslint-disable-next-line array-callback-return
+            props.data.map((item: any) => {
+                // eslint-disable-next-line array-callback-return
+                columns.map((d: any, index: any) => {
+                    if (index > 0) {
+                        result += coldelimiter;
+                    }
+                    let val = item[columns[index]];
+                    result += val;
+                });
+                result += linedelimiter;
+            });
+
+            if (result == null) return;
+            if (
+                !result.match(/^data:text\/txt/i) &&
+                !newVariable.msSaveOrOpenBlob
+            ) {
+                var data1 =
+                    'data:application/txt;charset=utf-8,' +
+                    encodeURIComponent(result);
+                var link1 = document.createElement('a');
+                link1.setAttribute('href', data1);
+                link1.setAttribute('download', filename + '.txt');
+                link1.click();
+            } else {
+                var blob1 = new Blob([result]);
+                if (newVariable.msSaveOrOpenBlob) {
+                    newVariable.msSaveBlob(blob1, filename + '.txt');
+                }
+            }
         }
     };
 
@@ -194,7 +226,6 @@ export default function ExportDataTable<Entry extends {}>(
     const navigate = useNavigate();
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
-
     const [paginate, setPaginate] = useState({
         pageNumber: queryParams.get('pageNumber')
             ? Number(queryParams.get('pageNumber'))
@@ -243,21 +274,19 @@ export default function ExportDataTable<Entry extends {}>(
         });
     }
 
-    function onpageSizeChange(e: number) {
-        setPaginate((prev: any) => {
-            if (Number(e) >= props.total) {
-                return {
-                    ...prev,
-                    pageNumber: 1,
-                    pageSize: Number(e),
-                };
-            } else {
-                return {
-                    ...prev,
-                    pageSize: Number(e),
-                };
-            }
-        });
+    function onpageSizeChange(pageSize: number | string) {
+        if (pageSize === 'View all') {
+            setPaginate((prev: any) => ({
+                ...prev,
+                pageSize: props.total,
+                pageNumber: 1,
+            }));
+        } else {
+            setPaginate((prev: any) => ({
+                ...prev,
+                pageSize: Number(pageSize),
+            }));
+        }
     }
 
     useEffect(() => {
@@ -270,6 +299,7 @@ export default function ExportDataTable<Entry extends {}>(
     return (
         <div>
             <div className="panel">
+                {props.header}
                 <div className="flex md:items-center justify-between md:flex-row flex-col mb-4.5 gap-5">
                     <div className="flex items-center flex-wrap">
                         <button
@@ -298,15 +328,14 @@ export default function ExportDataTable<Entry extends {}>(
                             EXCEL
                         </button>
 
-                        <button
-                            type="button"
-                            onClick={() => exportTable('print')}
-                            className="btn btn-primary btn-sm m-1"
-                        >
-                            <IconPrinter className="ltr:mr-2 rtl:ml-2" />
-                            PRINT
-                        </button>
-                        <div>{props.filterComponent}</div>
+                        {/* <button
+							type="button"
+							onClick={() => exportTable("print")}
+							className="btn btn-primary btn-sm m-1"
+						>
+							<IconPrinter className="ltr:mr-2 rtl:ml-2" />
+							PRINT
+						</button> */}
                     </div>
 
                     <input
@@ -354,6 +383,7 @@ export default function ExportDataTable<Entry extends {}>(
                             `Showing  ${from} to ${to} of ${totalRecords} entries`
                         }
                     />
+                    {/* <MantineReactTable table={table} /> */}
                 </div>
             </div>
         </div>

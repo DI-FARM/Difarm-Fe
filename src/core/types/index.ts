@@ -32,3 +32,12 @@ export interface ErrorModel {
 	status: string;
 	message: string;
 }
+
+export interface ProductionData {
+    cattleId: string;
+    productName: string;
+    quantity: string;
+    productionDate: string;
+    expirationDate: string;
+}
+

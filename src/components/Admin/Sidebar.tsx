@@ -20,6 +20,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 import {
+    FaAnchor,
     FaCodeBranch,
     FaHome,
     FaHouseUser,
@@ -33,6 +34,9 @@ import { IRootState } from '@/store';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 import IconCaretsDown from '@/components/Icon/IconCaretsDown';
 import IconCaretDown from '@/components/Icon/IconCaretDown';
+import IconUsers from '../Icon/IconUsers';
+import IconHome from '../Icon/IconHome';
+import IconHelpCircle from '../Icon/IconHelpCircle';
 
 const Sidebar = () => {
     const [currentMenu, setCurrentMenu] = useState<string>('');
@@ -53,33 +57,45 @@ const Sidebar = () => {
     const navigation = [
         {
             name: 'Dashboard',
-            to: '/admin',
-            icon: FaHome,
-            current: location.pathname === '/admin',
+            to: '/account',
+            icon: IconHome,
+            current: location.pathname === '/account',
+        },
+        {
+            name: 'Users',
+            to: '/account/users',
+            icon: IconUsers,
+            current: location.pathname === '/account/users',
+        },
+        {
+            name: 'Farms',
+            to: '/account/farms',
+            icon: IconHome,
+            current: location.pathname === '/account/farms',
         },
         {
             name: 'Cattle',
-            to: '/admin/users',
-            icon: FaUsers,
-            current: location.pathname === '/admin/users',
+            to: '/account/cattle',
+            icon: FaAnchor,
+            current: location.pathname === '/account/cattle',
         },
         {
-            name: 'Calender',
-            to: '/admin/clients',
-            icon: FaHouseUser,
-            current: location.pathname === '/admin/clients',
+            name: 'Production',
+            to: '/account/production',
+            icon: FaAnchor,
+            current: location.pathname === '/account/Production',
         },
         {
-            name: 'Finacial',
-            to: '/admin/branches',
-            icon: FaCodeBranch,
-            current: location.pathname === '/admin/branches',
+            name: 'Stock',
+            to: '/account/stock',
+            icon: FaAnchor,
+            current: location.pathname === '/account/stock',
         },
         {
-            name: 'Reports',
-            to: '/admin/reports',
-            icon: FaSearchLocation,
-            current: location.pathname === '/admin/reports',
+            name: 'Vaccination',
+            to: '/account/vaccine',
+            icon: IconHelpCircle,
+            current: location.pathname === '/account/vacccine',
         },
     ];
 
@@ -140,10 +156,9 @@ const Sidebar = () => {
                                         </li>
                                     ))}
 
-                                    
                                     <li className="nav-item">
                                         <Link
-                                            to="/admin/profile"
+                                            to="/account/profile"
                                             className={`group ${
                                                 location.pathname ===
                                                 '/dashboard/profile'

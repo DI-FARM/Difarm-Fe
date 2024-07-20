@@ -1,105 +1,92 @@
-import React from 'react';
-import IMG from '@/assets/images/Farm logo.png';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { InputField } from '@/components/input';
+import toast from 'react-hot-toast';
+import Logo from '@/assets/logo.png';
+import img2 from '@/assets/istockphoto-2151351987-2048x2048-Photoroom.png';
+import { useLogin } from '@/hooks/api/auth';
 
-function Login() {
-    const navigate = useNavigate(); // Initialize useHistory hook
+const Login: React.FC = () => {
+    const navigate = useNavigate();
+    const { loadingLogin, login } = useLogin();
+    const [credentials, setCredentials] = useState({ username: '', password: '' });
 
-    const handleLogin = () => {
-        navigate('/admin');
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setCredentials({
+            ...credentials,
+            [name]: value,
+        });
     };
+
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const response = await login(credentials);
+        if (response) {
+            navigate('/account');
+        } 
+    };
+
     return (
-        <>
-            <div className="bg-white dark:bg-black ">
-                <div className="flex h-screen justify-center">
-                    <div className="mx-auto flex w-full max-w-md items-center  px-6  h-full lg:w-2/6">
-                        <div className="flex-1">
-                            <div className="text-center">
-                                <div className="mx-auto flex  flex-col items-center justify-center my-5 ">
-                                    <img className="w-32  " alt="" />
-                                    <p className="text-lg font-medium text-gray-600 dark:text-gray-400">
-                                        Farm
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="mt-10">
-                                <>
-                                    <div className="flex flex-row items-center  justify-center">
-                                        <p className="my-10 mt-3  text-3xl text-teal-500 ">
-                                            Login
-                                        </p>
-                                    </div>
-
-                                    <form className="mt-10">
-                                        <div className="space-y-4">
-                                            <InputField
-                                                type="text"
-                                                label="Username"
-                                                placeholder="Username"
-                                                focus
-                                                className="h-13"
-                                                registration={undefined}
-                                            />
-
-                                            <InputField
-                                                type="password"
-                                                label="Password"
-                                                placeholder="********"
-                                                className="h-13"
-                                                registration={undefined}
-                                            />
-
-                                            <div className="flex flex-col  ">
-                                                <div className="flex flex-row items-center  justify-between">
-                                                    <Link
-                                                        to="/reset-password"
-                                                        className="text-sm font-medium text-primary"
-                                                    >
-                                                        Forgot password?
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <button
-                                            type="submit"
-                                            className="mt-6 h-12 w-full rounded bg-primary font-semibold uppercase text-white"
-                                            onClick={handleLogin} // Call handleLogin function when button is clicked
-                                        >
-                                            Log In
-                                        </button>
-                                    </form>
-
-                                    {/* <div>
-        <p className="text-md mt-2 text-gray-500">
-          Don't have an acount?{" "}
-          <Link to="/register" className="font-medium text-primary">
-            Sign Up
-          </Link>
-        </p>
-      </div> */}
-                                </>
-                            </div>
-                        </div>
+        <div className="bg-white dark:bg-black min-h-screen grid grid-cols-2">
+            <div className="flex justify-center items-center">
+                <div className="max-w-md w-full space-y-8 p-2">
+                    <div className="text-center">
+                        <img src={Logo} alt="Farm Logo" className="w-32 mx-auto" />
+                        <h2 className="mt-6 text-3xl font-extrabold text-primary dark:text-white">
+                            Welcome back, Login
+                        </h2>
                     </div>
-                    <div className="bg-green-800  hidden bg-cover lg:block lg:w-2/3">
-                        <div className="flex h-full items-center bg-gray-900 bg-opacity-40 px-20">
-                            <div>
-                                <h2 className="text-2xl font-bold text-white sm:text-3xl">
-                                    Farm
-                                </h2>
-
-                                <p className="mt-3 max-w-2xl text-2xl text-gray-300">
-                                   some quotes
-                                </p>
-                            </div>
+                    <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                        <InputField
+                            type="text"
+                            name="username"
+                            label="Username"
+                            placeholder="Username"
+                            value={credentials.username}
+                            onChange={handleChange}
+                            className="h-13"
+                            required
+                        />
+                        <InputField
+                            type="password"
+                            name="password"
+                            label="Password"
+                            placeholder="Password"
+                            value={credentials.password}
+                            onChange={handleChange}
+                            className="h-13"
+                            required
+                        />
+                        <div className="flex items-center justify-between">
+                            <Link to="/reset-password" className="text-sm font-medium text-teal-600 hover:text-teal-500">
+                                Forgot your password?
+                            </Link>
                         </div>
+                        <button
+                            type="submit"
+                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+                            disabled={loadingLogin}
+                        >
+                            {loadingLogin ? 'Signing in...' : 'Sign In'}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div className="bg-cover h-full" style={{ backgroundImage: `url(${img2})` }}>
+                <div className="flex h-full items-center bg-gray-900 bg-opacity-40 px-20">
+                    <div>
+                        <h2 className="text-3xl font-bold text-white sm:text-4xl">
+                            Welcome to Farm
+                        </h2>
+                        <p className="mt-3 max-w-2xl text-2xl text-gray-300">
+                            Bringing you closer to nature.
+                        </p>
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
-}
+};
+
 export default Login;
