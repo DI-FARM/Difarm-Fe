@@ -1,35 +1,15 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
-import PNG from '@/assets/error/500-light.svg'
-import Pngdark from '@/assets/error/500-light.svg'
-import { setPageTitle } from '../../../store/themeConfigSlice';
-import { IRootState } from '../../../store';
 
-const Error500 = () => {
-    const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(setPageTitle('Error 500'));
-    });
-    const isDark = useSelector((state: IRootState) => state.themeConfig.theme === 'dark' || state.themeConfig.isDarkMode);
-
-    return (
-        <div className="relative flex min-h-screen items-center justify-center overflow-hidden">
-            <div className="px-6 py-16 text-center font-semibold before:container before:absolute before:left-1/2 before:-translate-x-1/2 before:rounded-full before:bg-[linear-gradient(180deg,#4361EE_0%,rgba(67,97,238,0)_50.73%)] before:aspect-square before:opacity-10 md:py-20">
-                <div className="relative">
-                    <img
-                        src={isDark ?`${Pngdark}` : `${PNG}` }
-                        alt="500"
-                        className="mx-auto -mt-10 w-full max-w-xs object-cover md:-mt-14 md:max-w-xl"
-                    />
-                    <p className="mt-5 text-base dark:text-white">Internal server error!</p>
-                    <Link to="/" className="btn btn-primary mx-auto !mt-7 w-max border-0 uppercase shadow-none">
-                        Home
-                    </Link>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-export default Error500;
+export default function InternalServerErrorPage() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
+      <ExclamationCircleIcon className="w-20 h-20 text-red-500 mb-4" />
+      <h1 className="text-4xl font-bold mb-2">500</h1>
+      <p className="text-lg mb-6">Something went wrong on our end. Please try again later.</p>
+      <Link to="/" className="btn btn-primary">
+        Go back to Home
+      </Link>
+    </div>
+  );
+}

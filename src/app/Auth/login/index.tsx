@@ -28,7 +28,7 @@ const Login: React.FC = () => {
     };
 
     return (
-        <div className="bg-white dark:bg-black min-h-screen grid grid-cols-2">
+        <div className="bg-white dark:bg-black min-h-screen grid sm:grid-cols-2 grid-cols-1 ">
             <div className="flex justify-center items-center">
                 <div className="max-w-md w-full space-y-8 p-2">
                     <div className="text-center">

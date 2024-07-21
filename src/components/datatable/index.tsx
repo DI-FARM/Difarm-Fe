@@ -300,52 +300,44 @@ export default function DataTableV2<Entry extends {}>(
         <div>
             <div className="panel">
                 {props.header}
-                <div className="flex md:items-center justify-between md:flex-row flex-col mb-4.5 gap-5">
-                    <div className="flex items-center flex-wrap">
-                        <button
-                            type="button"
-                            onClick={() => exportTable('csv')}
-                            className="btn btn-primary btn-sm m-1 "
-                        >
-                            <IconFile className="w-5 h-5 ltr:mr-2 rtl:ml-2" />
-                            CSV
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => exportTable('txt')}
-                            className="btn btn-primary btn-sm m-1"
-                        >
-                            <IconFile className="w-5 h-5 ltr:mr-2 rtl:ml-2" />
-                            TXT
-                        </button>
+                <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4 p-4 bg-white shadow rounded-lg">
+    <div className="flex flex-wrap items-center gap-3">
+        <button
+            type="button"
+            onClick={() => exportTable('csv')}
+            className="btn btn-primary btn-sm flex items-center gap-2"
+        >
+            <IconFile className="w-5 h-5" />
+            <span>CSV</span>
+        </button>
+        <button
+            type="button"
+            onClick={() => exportTable('txt')}
+            className="btn btn-primary btn-sm flex items-center gap-2"
+        >
+            <IconFile className="w-5 h-5" />
+            <span>TXT</span>
+        </button>
+        <button
+            type="button"
+            className="btn btn-primary btn-sm flex items-center gap-2"
+            onClick={handleDownloadExcel}
+        >
+            <IconFile className="w-5 h-5" />
+            <span>EXCEL</span>
+        </button>
+    </div>
 
-                        <button
-                            type="button"
-                            className="btn btn-primary btn-sm m-1"
-                            onClick={handleDownloadExcel}
-                        >
-                            <IconFile className="w-5 h-5 ltr:mr-2 rtl:ml-2" />
-                            EXCEL
-                        </button>
+    <input
+        type="text"
+        className="form-input w-full md:w-1/3 mt-3 md:mt-0 p-2 border rounded"
+        placeholder="Search..."
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+    />
+</div>
 
-                        {/* <button
-							type="button"
-							onClick={() => exportTable("print")}
-							className="btn btn-primary btn-sm m-1"
-						>
-							<IconPrinter className="ltr:mr-2 rtl:ml-2" />
-							PRINT
-						</button> */}
-                    </div>
 
-                    <input
-                        type="text"
-                        className="form-input w-auto"
-                        placeholder="Search..."
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                    />
-                </div>
                 <div className="datatables">
                     <DataTable
                         highlightOnHover

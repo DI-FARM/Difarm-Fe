@@ -20,6 +20,7 @@ export default function AppRoutes() {
         <Sidebar /> */}
         <Routes>
             <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="*" element={<Navigate to="/login" />} />
             <Route path="admin/reports" element={<Report />} />
             <Route path="login" element={<Login />} />
             <Route path="account" element={<AdminLayout />}>
