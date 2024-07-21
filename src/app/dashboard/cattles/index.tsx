@@ -13,7 +13,7 @@ import UpdateCattleModal from './update_cattle';
 import ConfirmDeleteModal from './delete_cattle';
 
 const CattleList = () => {
-    const { cattle, loading, refetch, deleteCattle }: any = useCattle();
+    const { cattle, loading, fetchCattle, deleteCattle }: any = useCattle();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -23,7 +23,7 @@ const CattleList = () => {
         try {
             await deleteCattle(selectedCattle?.id);
             toast.success('Cattle deleted successfully');
-            refetch();
+            fetchCattle();
         } catch (error) {
             toast.error('Failed to delete cattle');
         } finally {
@@ -31,9 +31,20 @@ const CattleList = () => {
         }
     };
 
-     const handleRefetch = () => {
-         refetch();
-     }
+    const handleRefetch = () => {
+        fetchCattle();
+    };
+
+    const openUpdateModal = (row: any) => {
+        setSelectedCattle(row);
+        setIsUpdateModalOpen(true);
+    };
+
+    const openDeleteModal = (row: any) => {
+        setSelectedCattle(row);
+        setIsDeleteModalOpen(true);
+    };
+
     const columns: TableColumnV2<any>[] = [
         {
             title: 'Tag Number',
@@ -56,7 +67,7 @@ const CattleList = () => {
             render: row => <p>{formatDateToLongForm(row?.DOB)}</p>,
         },
         {
-            title: 'Weight',
+            title: 'Weight(Kg)',
             accessor: 'weight',
             render: row => <p>{row?.weight}</p>,
         },
@@ -66,9 +77,9 @@ const CattleList = () => {
             render: row => <p>{capitalize(row?.location)}</p>,
         },
         {
-            title: 'Farm ID',
-            accessor: 'farmId',
-            render: row => <p>{row?.farmId}</p>,
+            title: 'Farm ',
+            accessor: 'farm.name',
+            render: row => <p>{row?.farm.name}</p>,
         },
         {
             title: 'Last Checkup Date',
@@ -86,34 +97,26 @@ const CattleList = () => {
             render: row => <p>{formatDateToLongForm(row?.purchaseDate)}</p>,
         },
         {
-            title: 'Price',
+            title: 'Price(RWF)',
             accessor: 'price',
             render: row => <p>{row?.price}</p>,
+        },
+        {
+            title: 'Date Created',
+            accessor: 'created_at',
+            render: row => <p>{formatDateToLongForm(row?.createdAt)}</p>,
         },
         {
             title: 'Actions',
             accessor: 'actions',
             render: row => (
                 <div className="flex gap-2 justify-center">
-                    <button
-                        onClick={() => {
-                            setSelectedCattle(row);
-                            setIsUpdateModalOpen(true);
-                        }}
-                        className=""
-                    >
-                        <IconEdit className='text-primary' />
-                        
+                    <button onClick={() => openUpdateModal(row)} className="">
+                        <IconEdit className="text-primary" />
                     </button>
-                    <button
-                        onClick={() => {
-                            setSelectedCattle(row);
-                            setIsDeleteModalOpen(true);
-                        }}
-                        className=""
-                    >
-                        <IconTrash className='text-danger' />
-                                        </button>
+                    <button onClick={() => openDeleteModal(row)} className="">
+                        <IconTrash className="text-danger" />
+                    </button>
                 </div>
             ),
         },
@@ -152,7 +155,10 @@ const CattleList = () => {
             />
             <UpdateCattleModal
                 isOpen={isUpdateModalOpen}
-                onClose={() => setIsUpdateModalOpen(false)}
+                onClose={() => {
+                    setSelectedCattle(null);
+                    setIsUpdateModalOpen(false);
+                }}
                 cattle={selectedCattle}
                 handleRefetch={handleRefetch}
             />

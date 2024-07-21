@@ -125,7 +125,7 @@ const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
                                         placeholder="Select Type"
                                         options={[
                                             { value: 'ADDITION', label: 'In' },
-                                            { value: 'SUBTRACTION', label: 'Out' },
+                                            { value: 'CONSUME', label: 'Out' },
                                         ]}
                                         error={errors.type?.message}
                                         register={register}

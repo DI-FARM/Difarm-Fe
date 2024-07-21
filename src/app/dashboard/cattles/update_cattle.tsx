@@ -12,13 +12,13 @@ const cattleSchema = z.object({
     breed: z.string().nonempty('Breed is required'),
     gender: z.string().nonempty('Gender is required'),
     DOB: z.string().nonempty('Date of birth is required'),
-    weight: z.string().nonempty('Weight is required'),
+    weight: z.preprocess((val) => parseFloat(val as string), z.number().nonnegative('Weight is required')),
     location: z.string().nonempty('Location is required'),
     farmId: z.string().nonempty('Farm ID is required'),
     lastCheckupDate: z.string().nonempty('Last checkup date is required'),
     vaccineHistory: z.string().nonempty('Vaccine history is required'),
     purchaseDate: z.string().nonempty('Purchase date is required'),
-    price: z.string().nonempty('Price is required'),
+    price: z.preprocess((val) => parseFloat(val as string), z.number().nonnegative('Price is required')),
 });
 
 const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
@@ -33,6 +33,7 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
     useEffect(() => {
         fetchFarms();
     }, []);
+
     const {
         register,
         handleSubmit,
@@ -40,15 +41,41 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
         reset,
     } = useForm({
         resolver: zodResolver(cattleSchema),
-        defaultValues: cattle,
     });
+
+    useEffect(() => {
+        if (cattle) {
+            reset({
+                tagNumber: cattle.tagNumber || '',
+                breed: cattle.breed || '',
+                gender: cattle.gender || '',
+                DOB: cattle.DOB ? new Date(cattle.DOB).toISOString().split('T')[0] : '',
+                weight: cattle.weight || '',
+                location: cattle.location || '',
+                farmId: cattle.farmId || '',
+                lastCheckupDate: cattle.lastCheckupDate ? new Date(cattle.lastCheckupDate).toISOString().split('T')[0] : '',
+                vaccineHistory: cattle.vaccineHistory || '',
+                purchaseDate: cattle.purchaseDate ? new Date(cattle.purchaseDate).toISOString().split('T')[0] : '',
+                price: cattle.price || '',
+            });
+        }
+    }, [cattle, reset]);
 
     const onSubmit = async (data: any) => {
         try {
+            
             const payload = {
-                ...data,
+                tagNumber: data.tagNumber,
+                breed: data.breed,
+                gender: data.gender,
+                DOB: new Date(data.DOB).toISOString(),
                 weight: parseFloat(data.weight),
                 price: parseFloat(data.price),
+                location: data.location,
+                farmId: data.farmId,
+                lastCheckupDate: new Date(data.lastCheckupDate).toISOString(),
+                vaccineHistory: data.vaccineHistory,
+                purchaseDate: new Date(data.purchaseDate).toISOString(),
             };
             await updateCattle(cattle.id, payload);
             onClose();
@@ -107,7 +134,6 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
                                                     registration={register(
                                                         'tagNumber'
                                                     )}
-                                                    defaultValue={cattle?.tagNumber}
                                                     error={
                                                         errors.tagNumber
                                                             ?.message
@@ -119,8 +145,6 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
                                                 <InputField
                                                     type="text"
                                                     name="breed"
-                                                     defaultValue={cattle?.breed}
-                                            
                                                     label="Breed"
                                                     placeholder="Enter breed"
                                                     registration={register(
@@ -132,19 +156,29 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
                                                 />
                                             </div>
                                             <div className="mb-4">
-                                                <InputField
-                                                    type="text"
-                                                     defaultValue={cattle?.gender}
-                                                    label="Gender"
-                                                    name="gender"
-                                                    registration={register(
-                                                        'gender'
-                                                    )}
-                                                    placeholder="Enter gender"
-                                                    error={
-                                                        errors.gender?.message
-                                                    }
-                                                />
+                                                <label
+                                                    htmlFor="gender"
+                                                    className="block text-sm font-bold text-gray-700"
+                                                >
+                                                    Gender
+                                                </label>
+                                                <select
+                                                    id="gender"
+                                                    {...register('gender')}
+                                                    className="mt-1 block w-full px-3 py-2 border text-gray-400 border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                                                >
+                                                    <option value="">
+                                                        Select Gender
+                                                    </option>
+                                                    <option value="Cow">Cow</option>
+                                                    <option value="Bull">Bull</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                                {errors.gender && (
+                                                    <p className="text-sm text-red-600">
+                                                        Gender is required
+                                                    </p>
+                                                )}
                                             </div>
                                             <div className="mb-4">
                                                 <InputField
@@ -153,7 +187,6 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
                                                         'DOB'
                                                     )}
                                                     label="Date of Birth"
-                                                     defaultValue={cattle?.DOB}
                                                     placeholder="Enter date of birth"
                                                     name="DOB"
                                                     error={errors.DOB?.message}
@@ -165,8 +198,7 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
                                                     registration={register(
                                                         'weight'
                                                     )}
-                                                     defaultValue={cattle?.weight}
-                                                    label="Weight"
+                                                    label="Weight (Kg)"
                                                     placeholder="Enter weight"
                                                     name="weight"
                                                     error={
@@ -180,7 +212,6 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
                                                     registration={register(
                                                         'location'
                                                     )}
-                                                     defaultValue={cattle?.location}
                                                     label="Location"
                                                     placeholder="Enter location"
                                                     name="location"
@@ -199,7 +230,6 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
                                                 <select
                                                     id="farmId"
                                                     {...register('farmId')}
-                                                     defaultValue={cattle?.farmId}
                                                     className="mt-1 block w-full px-3 py-2 border text-gray-400 border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
                                                 >
                                                     <option value="">
@@ -238,7 +268,6 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
                                                     registration={register(
                                                         'lastCheckupDate'
                                                     )}
-                                                     defaultValue={cattle?.lastCheckupDate}
                                                     label="Last Checkup Date"
                                                     placeholder="Enter last checkup date"
                                                     name="lastCheckupDate"
@@ -254,7 +283,6 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
                                                     registration={register(
                                                         'vaccineHistory'
                                                     )}
-                                                     defaultValue={cattle?.vaccineHistory}
                                                     label="Vaccine History"
                                                     placeholder="Enter vaccine history"
                                                     name="vaccineHistory"
@@ -270,7 +298,6 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
                                                     registration={register(
                                                         'purchaseDate'
                                                     )}
-                                                     defaultValue={cattle?.purchaseDate}
                                                     label="Purchase Date"
                                                     placeholder="Enter purchase date"
                                                     name="purchaseDate"
@@ -286,8 +313,7 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
                                                     registration={register(
                                                         'price'
                                                     )}
-                                                     defaultValue={cattle?.price}
-                                                    label="Price"
+                                                    label="Price (RWF)"
                                                     placeholder="Enter price"
                                                     name="price"
                                                     error={

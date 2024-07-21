@@ -44,8 +44,9 @@ const useAddFarm = () => {
         setError(null);
         try {
             const response = await api.post('/farms', farmData);
+            toast.success('Farm added successfully');
             return response.data;
-            toast.success('Farm added successfully!');
+            
         } catch (err:any) {
             setError(err.response?.data?.message || 'An error occurred while adding the farm.');
             throw err;

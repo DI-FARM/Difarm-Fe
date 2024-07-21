@@ -16,7 +16,7 @@ export const useCattle = () => {
             setCattle(response.data);
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'An error occurred while fetching cattle.';
-           
+           toast.error(errorMessage);
             setError(errorMessage);
         } finally {
             setLoading(false);
@@ -60,7 +60,7 @@ export const useCattle = () => {
         setError(null);
         try {
             await api.delete(`/cattles/${id}`);
-            toast.success('Cattle deleted successfully');
+
             fetchCattle();
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'An error occurred while deleting cattle.';

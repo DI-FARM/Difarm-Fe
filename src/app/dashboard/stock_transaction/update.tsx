@@ -130,8 +130,8 @@ const UpdateStockTransactionModal: React.FC<
                                         name="type"
                                         placeholder="Select Type"
                                         options={[
-                                            { value: 'IN', label: 'In' },
-                                            { value: 'OUT', label: 'Out' },
+                                            { value: 'ADDITION', label: 'In' },
+                                            { value: 'CONSUME', label: 'Out' },
                                         ]}
                                         defaultValue={ {
                                             label: `${transaction?.type} `,

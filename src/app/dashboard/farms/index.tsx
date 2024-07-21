@@ -1,11 +1,10 @@
-import { useDeleteFarm, useFarms } from '@/hooks/api/farms';
+import { useFarms } from '@/hooks/api/farms';
 import { useState } from 'react';
 import AddFarmModal from './add_farm';
 import DataTableV2, { TableColumnV2 } from '@/components/datatable';
 import formatDateToLongForm from '@/utils/DateFormattter';
 import { capitalize } from 'lodash';
 import IconPlus from '@/components/Icon/IconPlus';
-import IconRefresh from '@/components/Icon/IconRefresh';
 import IconHome from '@/components/Icon/IconHome';
 import UpdateFarmModal from './update';
 import IconTrash from '@/components/Icon/IconTrash';
@@ -14,7 +13,7 @@ import ConfirmDeleteModal from './delete';
 
 
 const FarmsList = () => {
-    const { farms, loading, error, refetch }: any = useFarms();
+    const { farms, loading, error, fetchFarms }: any = useFarms();
    
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isDketeModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -83,7 +82,7 @@ const FarmsList = () => {
     ];
 
     const handleRefetch = () => {
-        refetch();
+        fetchFarms();
     };
 
     return (
@@ -114,7 +113,8 @@ const FarmsList = () => {
 
             <AddFarmModal
                 isOpen={isAddModalOpen}
-                onClose={() => setIsAddModalOpen(false)}
+                onClose={() =>
+                     setIsAddModalOpen(false)}
                 handleRefetch={handleRefetch}
             />
 

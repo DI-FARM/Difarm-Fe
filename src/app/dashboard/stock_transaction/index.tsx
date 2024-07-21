@@ -9,6 +9,7 @@ import UpdateStockTransactionModal from './update';
 import ConfirmDeleteModal from './delete';
 import { useStockTransaction } from '@/hooks/api/stock_transactions';
 import { get } from 'lodash';
+import formatDateToLongForm from '@/utils/DateFormattter';
 
 
 interface StockTransactionRecord {
@@ -16,6 +17,9 @@ interface StockTransactionRecord {
     stockId: string;
     quantity: number;
     type: 'IN' | 'OUT';
+    stock:any,
+
+    date:string;
 }
 
 const StockTransactionManagement = () => {
@@ -47,9 +51,14 @@ const StockTransactionManagement = () => {
 
     const columns: TableColumnV2<StockTransactionRecord>[] = [
         {
-            title: 'Stock ID',
-            accessor: 'stockId',
-            render: row => <p>{row.stockId}</p>,
+            title: 'Stock ',
+            accessor: 'stock.name',
+            render: row => <p>{row.stock.name}</p>,
+        },
+        {
+            title: 'Total ',
+            accessor: 'stock.quantity',
+            render: row => <p>{row.stock.quantity}</p>,
         },
         {
             title: 'Quantity',
@@ -62,10 +71,15 @@ const StockTransactionManagement = () => {
             render: row => <p>{row.type}</p>,
         },
         {
+            title: 'Date',
+            accessor: 'date',
+            render: row => <p>{formatDateToLongForm (row.date)}</p>,
+        },
+        {
             title: 'Actions',
             accessor: 'actions',
             render: row => (
-                <div className="flex gap-2 justify-center">
+                <div className="flex gap-2 justify-start">
                     <button
                         onClick={() => {
                             setSelectedTransaction(row);

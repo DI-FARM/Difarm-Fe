@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, JSXElementConstructor, Key, ReactElement, ReactNode } from 'react';
+import { Fragment } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { InputField } from '@/components/input';
 import { ProductionData } from '@/core';
 import { useProduction } from '@/hooks/api/productions';
+import AppSelect from '@/components/select/SelectField';
 
 const productionSchema = z.object({
     cattleId: z.string().nonempty('Cattle ID is required'),
@@ -14,6 +15,7 @@ const productionSchema = z.object({
     productionDate: z.string().nonempty('Production Date is required'),
     expirationDate: z.string().nonempty('Expiration Date is required'),
 });
+
 interface AddProductionModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -29,17 +31,25 @@ const AddProductionModal: React.FC<AddProductionModalProps> = ({ isOpen, onClose
         handleSubmit,
         formState: { errors },
         reset,
-    }:any = useForm({
+        setValue,
+    } :any= useForm({
         resolver: zodResolver(productionSchema),
     });
 
-    const onSubmit = async (data:ProductionData) => {
+    const options = cattle?.data?.map((cattle: {
+        breed: any; id: string; tagNumber: string 
+}) => ({
+        value: cattle.id,
+        label: `${cattle.tagNumber}(${cattle.breed}) `,
+    })) || [];
+
+    const onSubmit = async (data: ProductionData) => {
         try {
             const payload = {
                 ...data,
-                quantity: parseFloat(data.quantity)
-            }
-            await createProduction(payload   );
+                quantity: parseFloat(data.quantity),
+            };
+            await createProduction(payload);
             onClose();
             handleRefetch();
             reset();
@@ -84,29 +94,18 @@ const AddProductionModal: React.FC<AddProductionModalProps> = ({ isOpen, onClose
                                     <form onSubmit={handleSubmit(onSubmit)}>
                                         <div className="grid grid-cols-2 gap-2">
                                             <div className="mb-4">
-                                                <label
-                                                    htmlFor="cattleId"
-                                                    className="block text-sm font-bold text-gray-700"
-                                                >
-                                                    Cattle 
-                                                </label>
-                                                <select
-                                                    id="cattleId"
-                                                    {...register('cattleId')}
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                >
-                                                    <option value="">Select Cattle </option>
-                                                    {cattle?.data?.map((cattle: { id: string, tagNumber: string }) => (
-                                                        <option key={cattle.id} value={cattle.id}>
-                                                            {cattle.tagNumber}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                {errors.cattleId && (
-                                                    <p className="mt-2 text-sm text-red-600">
-                                                       Cattle is required
-                                                    </p>
-                                                )}
+                                                <AppSelect
+                                                    label="Cattle"
+                                                    name="cattleId"
+                                                    placeholder="Select Cattle"
+                                                    options={options}
+                                                    error={errors.cattleId?.message}
+                                                    register={register}
+                                                    setValue={setValue}
+                                                    validation={{
+                                                        required: 'Cattle is required',
+                                                    }}
+                                                />
                                             </div>
                                             <div className="mb-4">
                                                 <InputField

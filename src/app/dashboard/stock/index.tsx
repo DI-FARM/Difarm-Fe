@@ -8,11 +8,13 @@ import { useStock } from '@/hooks/api/stock';
 import AddStockModal from './add_stock';
 import UpdateStockModal from './update_stock';
 import ConfirmDeleteModal from './delete';
+import formatDateToLongForm from '@/utils/DateFormattter';
 
 interface StockRecord {
     id: string;
     name: string;
     quantity: number;
+    createdAt:string
 }
 
 const StockManagement = () => {
@@ -54,10 +56,15 @@ const StockManagement = () => {
             render: row => <p>{row.quantity}</p>,
         },
         {
+            title: 'Date Created',
+            accessor: 'createdAat',
+            render: row => <p>{formatDateToLongForm(row?.createdAt)}</p>,
+        },
+        {
             title: 'Actions',
             accessor: 'actions',
             render: row => (
-                <div className="flex gap-2 justify-center">
+                <div className="flex gap-2 justify-start">
                     <button
                         onClick={() => {
                             setSelectedStock(row);

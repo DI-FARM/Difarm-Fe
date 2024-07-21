@@ -58,9 +58,14 @@ const AddCattleModal = ({ isOpen, onClose, handleRefetch }: any) => {
                 purchaseDate: new Date(data.purchaseDate).toISOString(),
             };
             await addCattle(payload);
-            onClose();
-            handleRefetch();
-            reset();
+            if(!error){
+                onClose();
+                handleRefetch();
+                reset();
+            }
+            
+         
+           
         } catch (err) {
             // Handle error if needed
         }
@@ -146,8 +151,9 @@ const AddCattleModal = ({ isOpen, onClose, handleRefetch }: any) => {
                                                     <option value="">
                                                         Select Gender
                                                     </option>
-                                                    <option value="FEMALE">Female</option>
-                                                    <option value="MALE">Male</option>
+                                                    <option value="Cow">Cow</option>
+                                                    <option value="Bull">Bull</option>
+                                                    <option value="Other">Other</option>
                                                 </select>
                                                 {errors.gender && (
                                                     <p className="text-sm text-red-600">
@@ -171,7 +177,7 @@ const AddCattleModal = ({ isOpen, onClose, handleRefetch }: any) => {
                                                 registration={register(
                                                     'weight'
                                                 )}
-                                                label="Weight"
+                                                label="Weight (kg)"
                                                 placeholder="Enter weight"
                                                 name="weight"
                                                 error={errors.weight?.message}
@@ -271,7 +277,7 @@ const AddCattleModal = ({ isOpen, onClose, handleRefetch }: any) => {
                                             <InputField
                                                 type="number"
                                                 registration={register('price')}
-                                                label="Price"
+                                                label="Price (RWF)"
                                                 placeholder="Enter price"
                                                 name="price"
                                                 error={errors.price?.message}

@@ -20,6 +20,7 @@ interface ProductionRecord {
     quantity: number;
     productionDate: string;
     expirationDate: string;
+    cattle:any
 }
 
 const Production = () => {
@@ -52,9 +53,14 @@ const Production = () => {
     }
     const columns: TableColumnV2<ProductionRecord>[] = [
         {
-            title: 'Cattle ID',
-            accessor: 'cattleId',
-            render: row => <p>{row.cattleId}</p>,
+            title: 'Cattle Tag',
+            accessor: 'cattle.tagNumber',
+            render: row => <p>{row.cattle.tagNumber}</p>,
+        },
+        {
+            title: 'Cattle Breed ',
+            accessor: 'cattle.breed',
+            render: row => <p>{row.cattle.breed}</p>,
         },
         {
             title: 'Product Name',

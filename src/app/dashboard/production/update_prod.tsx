@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, JSXElementConstructor, Key, ReactElement, ReactNode, useEffect } from 'react';
+import { Fragment, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { InputField } from '@/components/input';
 import { ProductionData } from '@/core';
 import { useProduction } from '@/hooks/api/productions';
+import AppSelect from '@/components/select/SelectField';
 
 const productionSchema = z.object({
     cattleId: z.string().nonempty('Cattle ID is required'),
@@ -22,35 +23,83 @@ interface UpdateProductionModalProps {
     cattle: any;
     production: any;
 }
-const UpdateProduction: React.FC<UpdateProductionModalProps> = ({ isOpen, onClose, handleRefetch, cattle, production }) => {
+
+const UpdateProduction: React.FC<UpdateProductionModalProps> = ({
+    isOpen,
+    onClose,
+    handleRefetch,
+    cattle,
+    production,
+}) => {
     const { updateProduction, loading, error } = useProduction();
 
     const {
         register,
         handleSubmit,
+        control, 
         formState: { errors },
         reset,
+        setValue, 
     } = useForm({
         resolver: zodResolver(productionSchema),
-        defaultValues: production,
+        defaultValues: {
+            cattleId: production?.cattleId || '',
+            productName: production?.productName || '',
+            quantity: production?.quantity || '',
+            productionDate: production?.productionDate
+                ? new Date(production.productionDate)
+                      .toISOString()
+                      .split('T')[0]
+                : '',
+            expirationDate: production?.expirationDate
+                ? new Date(production.expirationDate)
+                      .toISOString()
+                      .split('T')[0]
+                : '',
+        },
     });
 
     useEffect(() => {
-        reset(production);
-    }, [production, reset]);
+        if (production) {
+            reset({
+                cattleId: production.cattleId || '',
+                productName: production.productName || '',
+                quantity: production.quantity || '',
+                productionDate: production.productionDate
+                    ? new Date(production.productionDate)
+                          .toISOString()
+                          .split('T')[0]
+                    : '',
+                expirationDate: production.expirationDate
+                    ? new Date(production.expirationDate)
+                          .toISOString()
+                          .split('T')[0]
+                    : '',
+            });
+            setValue('cattleId', production.cattleId || ''); // Set default value for cattleId
+        }
+    }, [production, reset, setValue]);
 
-    const onSubmit = async (data:ProductionData) => {
+    const onSubmit = async (data: ProductionData) => {
         try {
             const payload = {
                 ...data,
                 quantity: parseFloat(data.quantity),
-            }
+            };
             await updateProduction(production.id, payload);
             onClose();
             handleRefetch();
             reset();
-        } catch (err) {}
+        } catch (err) {
+            console.error(err); // Log the error for debugging purposes
+        }
     };
+
+    // Prepare options for AppSelect
+    const options = cattle?.data?.map((item: { id: string, tagNumber: string }) => ({
+        label: item.tagNumber,
+        value: item.id,
+    })) || [];
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
@@ -79,7 +128,9 @@ const UpdateProduction: React.FC<UpdateProductionModalProps> = ({ isOpen, onClos
                         >
                             <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-xl my-8 text-black dark:text-white-dark">
                                 <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
-                                    <div className="font-bold text-lg">Update Production</div>
+                                    <div className="font-bold text-lg">
+                                        Update Production
+                                    </div>
                                 </div>
                                 <div className="p-5">
                                     {error && (
@@ -90,29 +141,22 @@ const UpdateProduction: React.FC<UpdateProductionModalProps> = ({ isOpen, onClos
                                     <form onSubmit={handleSubmit(onSubmit)}>
                                         <div className="grid grid-cols-2 gap-2">
                                             <div className="mb-4">
-                                                <label
-                                                    htmlFor="cattleId"
-                                                    className="block text-sm font-bold text-gray-700"
-                                                >
-                                                    Cattle ID
-                                                </label>
-                                                <select
-                                                    id="cattleId"
-                                                    {...register('cattleId')}
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                >
-                                                    <option value="">Select Cattle ID</option>
-                                                    {cattle?.data?.map((cattle: { id: string, tagNumber: string }) => (
-                                                        <option key={cattle.id} value={cattle.id}>
-                                                            {cattle.tagNumber}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                {errors.cattleId && (
-                                                    <p className="mt-2 text-sm text-red-600">
-                                                      Production is required
-                                                    </p>
-                                                )}
+                                            <AppSelect
+                                                    label="Cattle"
+                                                    name="cattleId"
+                                                    placeholder="Select Cattle"
+                                                    options={options}
+                                                    defaultValue={ {
+                                                        label: `${production?.cattle.tagNumber}(${production?.cattle.breed}) `,
+                                                        value: production?.cattle?.id,
+                                                    }}
+                                                    error={errors.cattleId?.message}
+                                                    register={register}
+                                                    setValue={setValue}
+                                                    validation={{
+                                                        required: 'Cattle is required',
+                                                    }}
+                                                />
                                             </div>
                                             <div className="mb-4">
                                                 <InputField
