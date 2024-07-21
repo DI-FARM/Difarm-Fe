@@ -10,7 +10,7 @@ import { useProduction } from '@/hooks/api/productions';
 const productionSchema = z.object({
     cattleId: z.string().nonempty('Cattle ID is required'),
     productName: z.string().nonempty('Product Name is required'),
-    quantity: z.number().min(1, 'Quantity must be at least 1'),
+    quantity: z.string().min(1, 'Quantity must be at least 1'),
     productionDate: z.string().nonempty('Production Date is required'),
     expirationDate: z.string().nonempty('Expiration Date is required'),
 });

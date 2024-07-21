@@ -1,70 +1,74 @@
-import React, { ReactNode } from "react";
+import Select from 'react-select';
+import { useEffect } from 'react';
 
 interface SelectProps {
-  placeholder?: string;
-  className?: string;
-  registration?: any;
-  name?: string;
-  id?: string;
-  errors?: string;
-  options?: (string | { value: string | number; text: string })[];
-  required?: boolean;
-  children?: ReactNode;
-  value?: string;
-  onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void; // New prop
+    label: string;
+    placeholder?: string;
+    required?: boolean;
+    error?: any;
+    register: any;
+    name: string;
+    className?: string;
+    defaultValue?: { label: string; value: string };
+    setValue: any;
+    validation?: any;
+    options: { label: string; value: string }[];
 }
-const Select: React.FC<SelectProps> = ({
-  placeholder,
-  className = "",
-  registration = null,
-  name = "",
-  id = "",
-  value = "",
-  errors,
-  options = [],
-  required,
-  children,
-  onChange,
-}) => {
-  return (
-    <select
-      placeholder={placeholder}
-      required={required}
-      name={name}
-      id={id}
-      value={value}
-      {...registration}
-      data-testid="select-element"
-      onChange={onChange}
-      className="form-select"
-    >
-      {placeholder && (
-        <option value="" disabled className="placeholder">
-          {placeholder}
-        </option>
-      )}
-      {options && Array.isArray(options) && options.length > 0
-        ? options.map((option: any) => (
-            <option
-              value={
-                option && typeof option === "object" ? option.value : option
-              }
-              key={
-                option && typeof option === "object" ? option.value : option
-              }
-            >
-              {option && typeof option === "object" ? option.text : option}
-            </option>
-          ))
-        : React.Children.map(children, (child) =>
-            React.cloneElement(child as React.ReactElement<any>, {
-              className: `${
-                (child as React.ReactElement<any>).props.className
-              } img-special-class`,
-            })
-          )}
-    </select>
-  );
-};
 
-export default Select
+export default function AppSelect({
+    label,
+    error,
+    register,
+    validation,
+    setValue,
+    name,
+    defaultValue,
+    options,
+    placeholder,
+    required,
+}: SelectProps) {
+
+    useEffect(() => {
+        if (defaultValue) {
+            setValue(name, defaultValue.value);
+        }
+    }, [defaultValue, setValue, name]);
+
+    return (
+        <div className="flex flex-col gap-1 relative">
+            <label htmlFor="" className='text-sm font-bold'>{required ? '*' : ''} {label}</label>
+            <Select
+                {...register(name, validation)}
+                onChange={(val: any) => setValue(name, val.value)}
+                options={options}
+                placeholder={placeholder}
+                defaultValue={defaultValue}
+                classNamePrefix="react-select"
+                styles={{
+                    control: (provided) => ({
+                        ...provided,
+                        border: '1px solid #D1D5DB',
+                        backgroundColor: 'white',
+                        boxShadow: 'none',
+                        '&:hover': {
+                            borderColor: '#D1D5DB',
+                        },
+                    }),
+                    option: (provided, state) => ({
+                        ...provided,
+                        backgroundColor: state.isSelected ? '#E5E7EB' : state.isFocused ? '#F3F4F6' : 'white',
+                        color: state.isSelected ? 'black' : 'gray',
+                        '&:hover': {
+                            backgroundColor: '#F3F4F6',
+                        },
+                    }),
+                    menu: (provided) => ({
+                        ...provided,
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                    }),
+                }}
+            />
+            {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+        </div>
+    );
+}

@@ -11,6 +11,7 @@ import CattleList from '@/app/dashboard/cattles';
 import Users from '@/app/dashboard/users';
 import Production from '@/app/dashboard/production';
 import StockManagement from '@/app/dashboard/stock';
+import StockTransactionManagement from '@/app/dashboard/stock_transaction';
 
 export default function AppRoutes() {
     return (
@@ -29,6 +30,7 @@ export default function AppRoutes() {
                 <Route path='users' element={<Users />} />
                 <Route path='production' element={<Production />} />
                 <Route path='stock' element={<StockManagement />} />
+                <Route path='stock_transactions' element={<StockTransactionManagement />} />
                 <Route path='cattle' element={<CattleList />} />
             </Route>
         </Routes>

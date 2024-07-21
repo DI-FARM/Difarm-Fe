@@ -4,54 +4,62 @@ import IconPlus from '@/components/Icon/IconPlus';
 import IconEdit from '@/components/Icon/IconEdit';
 import IconTrash from '@/components/Icon/IconTrash';
 import { toast } from 'react-hot-toast';
-import { useStock } from '@/hooks/api/stock';
-import AddStockModal from './add_stock';
-import UpdateStockModal from './update_stock';
+import AddStockTransactionModal from './add';
+import UpdateStockTransactionModal from './update';
 import ConfirmDeleteModal from './delete';
+import { useStockTransaction } from '@/hooks/api/stock_transactions';
+import { get } from 'lodash';
 
-interface StockRecord {
+
+interface StockTransactionRecord {
     id: string;
-    name: string;
+    stockId: string;
     quantity: number;
+    type: 'IN' | 'OUT';
 }
 
-const StockManagement = () => {
-    const { createStock, updateStock, deleteStock, loading, error ,getStock,stocks}:any = useStock();
+const StockTransactionManagement = () => {
+    const { createTransaction, updateTransaction, deleteTransaction, loading, error,getStockTransactions,stock_transactions }:any = useStockTransaction();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [selectedStock, setSelectedStock] = useState<StockRecord | null>(null);
+    const [selectedTransaction, setSelectedTransaction] = useState<StockTransactionRecord | null>(null);
 
-    const handleRefresh = () => {
-        getStock()
+    useEffect(() => {
+      getStockTransactions()
+    }, [])
+    
+    const handleRefetch = () => {
+        getStockTransactions()
     }
     const handleDelete = async () => {
-        if (selectedStock) {
+        if (selectedTransaction) {
             try {
-                await deleteStock(selectedStock.id);
-                getStock()
+                await deleteTransaction(selectedTransaction.id);
+           getStockTransactions()
             } catch (error) {
-                toast.error('Failed to delete stock');
+                toast.error('Failed to delete stock transaction');
             } finally {
                 setIsDeleteModalOpen(false);
             }
         }
     };
-    useEffect(() => {
-    getStock()
-    }, [])
-    
 
-    const columns: TableColumnV2<StockRecord>[] = [
+    const columns: TableColumnV2<StockTransactionRecord>[] = [
         {
-            title: 'Name',
-            accessor: 'name',
-            render: row => <p>{row.name}</p>,
+            title: 'Stock ID',
+            accessor: 'stockId',
+            render: row => <p>{row.stockId}</p>,
         },
         {
             title: 'Quantity',
             accessor: 'quantity',
             render: row => <p>{row.quantity}</p>,
+        },
+        {
+            title: 'Type',
+            accessor: 'type',
+            render: row => <p>{row.type}</p>,
         },
         {
             title: 'Actions',
@@ -60,7 +68,7 @@ const StockManagement = () => {
                 <div className="flex gap-2 justify-center">
                     <button
                         onClick={() => {
-                            setSelectedStock(row);
+                            setSelectedTransaction(row);
                             setIsUpdateModalOpen(true);
                         }}
                         className=""
@@ -69,7 +77,7 @@ const StockManagement = () => {
                     </button>
                     <button
                         onClick={() => {
-                            setSelectedStock(row);
+                            setSelectedTransaction(row);
                             setIsDeleteModalOpen(true);
                         }}
                         className=""
@@ -91,7 +99,7 @@ const StockManagement = () => {
                 </li>
                 <li className="before:content-['/'] before:px-1.5">
                     <button className="text-black dark:text-white-light hover:text-black/70 dark:hover:text-white-light/70">
-                        Stock 
+                        Stock Transaction 
                     </button>
                 </li>
             </ol>
@@ -103,25 +111,26 @@ const StockManagement = () => {
                     className="btn btn-primary flex items-center gap-1"
                 >
                     <IconPlus />
-                    Add Stock
+                    Add Transaction
                 </button>
             </div>
 
-            <AddStockModal
+            <AddStockTransactionModal
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
-                handleRefetch={handleRefresh}
+                handleRefetch={handleRefetch}
             />
-            <UpdateStockModal
+            <UpdateStockTransactionModal
                 isOpen={isUpdateModalOpen}
                 onClose={() => setIsUpdateModalOpen(false)}
-                stock={selectedStock}
-                handleRefetch={handleRefresh}
+                transaction={selectedTransaction}
+                handleRefetch={handleRefetch}
             />
             <ConfirmDeleteModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={handleDelete}
+                
             />
 
             <div className="w-full">
@@ -130,15 +139,15 @@ const StockManagement = () => {
                     previousPage={0}
                     nextPage={0}
                     currentPage={1}
-                    data={stocks?.data ?? []} // Replace with your data
-                    total={stocks?.data?.length ?? 0} // Replace with your total
+                    data={stock_transactions?.data?? []} 
+                    total={stock_transactions?.data?.length ?? 0}
                     lastPage={1}
                     isLoading={loading}
-                    tableName={'Stock'}
+                    tableName={'Stock Transactions'}
                 />
             </div>
         </div>
     );
 };
 
-export default StockManagement;
+export default StockTransactionManagement;

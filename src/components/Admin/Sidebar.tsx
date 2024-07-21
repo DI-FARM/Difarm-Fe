@@ -1,35 +1,10 @@
 import PerfectScrollbar from 'react-perfect-scrollbar';
-import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation } from 'react-router-dom';
-
 import AnimateHeight from 'react-animate-height';
-
 import { useState, useEffect } from 'react';
-
-import logo from '@/assets/logo/logo_small.png';
-import {
-    BellIcon,
-    ChartBarIcon,
-    ChartBarSquareIcon,
-    Cog6ToothIcon,
-    HomeIcon,
-    QuestionMarkCircleIcon,
-    ShoppingCartIcon,
-    UsersIcon,
-} from '@heroicons/react/24/outline';
-
-import {
-    FaAnchor,
-    FaCodeBranch,
-    FaHome,
-    FaHouseUser,
-    FaLocationArrow,
-    FaSearchLocation,
-    FaSellcast,
-    FaSellsy,
-    FaUsers,
-} from 'react-icons/fa';
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { FaAnchor, FaSwatchbook } from 'react-icons/fa';
 import { IRootState } from '@/store';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 import IconCaretsDown from '@/components/Icon/IconCaretsDown';
@@ -37,22 +12,22 @@ import IconCaretDown from '@/components/Icon/IconCaretDown';
 import IconUsers from '../Icon/IconUsers';
 import IconHome from '../Icon/IconHome';
 import IconHelpCircle from '../Icon/IconHelpCircle';
+import { isLoggedIn } from '@/hooks/api/auth';
+import IconShoppingBag from '../Icon/IconShoppingBag';
 
 const Sidebar = () => {
     const [currentMenu, setCurrentMenu] = useState<string>('');
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
-    const semidark = useSelector(
-        (state: IRootState) => state.themeConfig.semidark
-    );
+    const semidark = useSelector((state: IRootState) => state.themeConfig.semidark);
     const location = useLocation();
     const dispatch = useDispatch();
+    const user = isLoggedIn();
+
     const toggleMenu = (value: string) => {
         setCurrentMenu(oldValue => {
             return oldValue === value ? '' : value;
         });
     };
-
-    console.log(location.pathname);
 
     const navigation = [
         {
@@ -60,42 +35,56 @@ const Sidebar = () => {
             to: '/account',
             icon: IconHome,
             current: location.pathname === '/account',
+            roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
         },
         {
             name: 'Users',
             to: '/account/users',
             icon: IconUsers,
             current: location.pathname === '/account/users',
+            roles: ['SUPERADMIN'],
         },
         {
             name: 'Farms',
             to: '/account/farms',
             icon: IconHome,
             current: location.pathname === '/account/farms',
+            roles: ['SUPERADMIN'],
         },
         {
             name: 'Cattle',
             to: '/account/cattle',
             icon: FaAnchor,
             current: location.pathname === '/account/cattle',
+            roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
         },
         {
             name: 'Production',
             to: '/account/production',
-            icon: FaAnchor,
-            current: location.pathname === '/account/Production',
+            icon: FaSwatchbook,
+            current: location.pathname === '/account/production',
+            roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
         },
         {
             name: 'Stock',
             to: '/account/stock',
-            icon: FaAnchor,
+            icon: IconShoppingBag,
             current: location.pathname === '/account/stock',
+            roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
+        },
+        {
+            name: 'Stock Transactions',
+            to: '/account/stock_transactions',
+            icon: IconShoppingBag,
+            current: location.pathname === '/account/stock_transactions',
+            roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
         },
         {
             name: 'Vaccination',
             to: '/account/vaccine',
             icon: IconHelpCircle,
-            current: location.pathname === '/account/vacccine',
+            current: location.pathname === '/account/vaccine',
+            roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
         },
     ];
 
@@ -107,18 +96,13 @@ const Sidebar = () => {
 
     return (
         <div className={'dark'}>
-            <nav
-                className={`sidebar capitalize fixed min-h-screen h-full top-0 bottom-0 w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] z-50 transition-all duration-300`}
-            >
+            <nav className={`sidebar capitalize fixed min-h-screen h-full top-0 bottom-0 w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] z-50 transition-all duration-300`}>
                 <div className="bg-white dark:bg-green-900 h-full">
                     <div className="flex justify-between items-center px-4 py-3">
-                        <div className="w-full  flex   flex-col  items-center justify-center">
+                        <div className="w-full flex flex-col items-center justify-center">
                             <div className="flex flex-col items-center justify-center">
                                 <p className="text-lg font-extrabold text-primary">
-                                    <span className="text-3xl text-white">
-                                        Farm
-                                    </span>
-                                    Maanager
+                                    <span className="text-3xl text-white">Farm</span>
                                 </p>
                             </div>
                         </div>
@@ -133,39 +117,26 @@ const Sidebar = () => {
                     </div>
                     <div className="h-10"></div>
                     <PerfectScrollbar className="h-[calc(100vh)] relative">
-                        <ul className="relative  space-y-0.5 p-4 py-0">
+                        <ul className="relative space-y-0.5 p-4 py-0">
                             <li className="nav-item">
                                 <ul>
-                                    {navigation.map((item, index) => (
-                                        <li key={index} className="nav-item">
-                                            <Link
-                                                to={item.to}
-                                                className={`group ${
-                                                    item.current
-                                                        ? 'active text-white'
-                                                        : ' '
-                                                }`}
-                                            >
-                                                <div className="flex items-center">
-                                                    <item.icon className="group-hover:!text-white  shrink-0" />
-                                                    <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-white/80 dark:group-hover:text-white">
-                                                        {item.name}
-                                                    </span>
-                                                </div>
-                                            </Link>
-                                        </li>
-                                    ))}
+                                    {navigation
+                                        .filter(item => item.roles.includes(user.role))
+                                        .map((item, index) => (
+                                            <li key={index} className="nav-item">
+                                                <Link to={item.to} className={`group ${item.current ? 'active text-white' : ' '}`}>
+                                                    <div className="flex items-center">
+                                                        <item.icon className="group-hover:!text-white shrink-0" />
+                                                        <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-white/80 dark:group-hover:text-white">
+                                                            {item.name}
+                                                        </span>
+                                                    </div>
+                                                </Link>
+                                            </li>
+                                        ))}
 
                                     <li className="nav-item">
-                                        <Link
-                                            to="/account/profile"
-                                            className={`group ${
-                                                location.pathname ===
-                                                '/dashboard/profile'
-                                                    ? 'active text-white'
-                                                    : ' '
-                                            }`}
-                                        >
+                                        <Link to="/account/profile" className={`group ${location.pathname === '/account/profile' ? 'active text-white' : ' '}`}>
                                             <div className="flex items-center">
                                                 <Cog6ToothIcon className="group-hover:!text-white shrink-0" />
                                                 <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-white/80 dark:group-hover:text-white">
@@ -209,33 +180,22 @@ function ItemDropDown(
         <li className="menu nav-item">
             <button
                 type="button"
-                className={`${
-                    currentMenu === item.name ? '' : ''
-                } nav-link group w-full`}
+                className={`${currentMenu === item.name ? '' : ''} nav-link group w-full`}
                 onClick={() => toggleMenu(item.name)}
             >
                 <div className="flex items-center">
                     <item.Icon className="group-hover:!text-white shrink-0" />
                     <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-white/80 dark:group-hover:text-white">
-                        Products{' '}
+                        {item.name}
                     </span>
                 </div>
 
-                <div
-                    className={
-                        currentMenu !== item.name
-                            ? 'rtl:rotate-90 -rotate-90'
-                            : ''
-                    }
-                >
+                <div className={currentMenu !== item.name ? 'rtl:rotate-90 -rotate-90' : ''}>
                     <IconCaretDown />
                 </div>
             </button>
 
-            <AnimateHeight
-                duration={300}
-                height={currentMenu === item.name ? 'auto' : 0}
-            >
+            <AnimateHeight duration={300} height={currentMenu === item.name ? 'auto' : 0}>
                 <ul className="sub-menu text-white/80">
                     {item.items.map((item, index) => (
                         <li key={index}>

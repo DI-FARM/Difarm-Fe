@@ -18,7 +18,7 @@ interface AddStockModalProps {
 }
 
 const AddStockModal: React.FC<AddStockModalProps> = ({ isOpen, onClose, handleRefetch }) => {
-    const { createStock, loading, error } = useStock();
+    const { createStock, loading, error }:any = useStock();
 
     const {
         register,
@@ -96,7 +96,7 @@ const AddStockModal: React.FC<AddStockModalProps> = ({ isOpen, onClose, handleRe
                                     <div className="mt-4 flex justify-end space-x-2">
                                         <button
                                             type="button"
-                                            className="btn btn-outline-secondary"
+                                            className="btn btn-outline-danger"
                                             onClick={onClose}
                                         >
                                             Cancel

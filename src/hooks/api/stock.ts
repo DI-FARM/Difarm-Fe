@@ -10,7 +10,7 @@ interface StockData {
 export const useStock = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-const [stock,setStock]= useState([])
+const [stocks,setStock]= useState([])
 const getStock = async () => {
     setLoading(true);
     setError(null);
@@ -77,5 +77,5 @@ const getStock = async () => {
         }
     };
 
-    return { stock,createStock, updateStock, deleteStock, loading, error,getStock };
+    return { stocks,createStock, updateStock, deleteStock, loading, error,getStock };
 };

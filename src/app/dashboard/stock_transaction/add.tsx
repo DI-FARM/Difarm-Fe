@@ -1,54 +1,61 @@
 import { z } from 'zod';
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, useEffect } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { InputField } from '@/components/input';
+import AppSelect from '@/components/select/SelectField';
+import { useStockTransaction } from '@/hooks/api/stock_transactions';
 import { useStock } from '@/hooks/api/stock';
 
-const stockSchema = z.object({
-    name: z.string().nonempty('Name is required'),
-    quantity: z.string().min(1, 'Quantity must be at least 1'),
+const transactionSchema = z.object({
+    stockId: z.string().nonempty('Stock ID is required'),
+    quantity: z.number().min(1, 'Quantity must be at least 1'),
+    type: z
+        .string().min(1, 'Type is required')
+     
 });
 
-interface UpdateStockModalProps {
+interface AddStockTransactionModalProps {
     isOpen: boolean;
     onClose: () => void;
-    stock: any;
     handleRefetch: () => void;
 }
 
-const UpdateStockModal: React.FC<UpdateStockModalProps> = ({
+const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
     isOpen,
     onClose,
-    stock,
     handleRefetch,
 }) => {
-    const { updateStock, loading, error } = useStock();
+    const { createTransaction, loading, error } = useStockTransaction();
+    const [stockOptions, setStockOptions] = useState<
+        { value: string; label: string }[]
+    >([]);
 
     const {
         register,
         handleSubmit,
         formState: { errors },
         reset,
+        setValue,
     } = useForm({
-        resolver: zodResolver(stockSchema),
-        defaultValues: stock,
+        resolver: zodResolver(transactionSchema),
     });
 
+    const { stocks, getStock }: any = useStock();
+
     useEffect(() => {
-        if (!isOpen) {
-            reset(stock);
-        }
-    }, [isOpen, reset, stock]);
+        getStock();
+    }, []);
+    console.log(stocks)
+    const options = stocks?.data?.map((stock: any) => ({
+        value: stock.id,
+        label: stock.name,
+    }));
 
     const onSubmit = async (data: any) => {
         try {
-            const payload = {
-                name: data.name,
-                quantity: parseFloat(data.quantity),
-            }
-            await updateStock(stock.id, payload);
+            await createTransaction(data);
             onClose();
             handleRefetch();
         } catch (err) {}
@@ -79,32 +86,53 @@ const UpdateStockModal: React.FC<UpdateStockModalProps> = ({
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="w-full max-w-md p-6 overflow-hidden text-left align-middle mt-4  transition-all transform bg-white shadow-xl rounded">
+                            <Dialog.Panel className="w-full max-w-md p-6 overflow-hidden text-left mt-4 align-middle transition-all transform bg-white shadow-xl rounded">
                                 <Dialog.Title
                                     as="h3"
                                     className="text-lg font-medium leading-6 text-gray-900"
                                 >
-                                    Update Stock
+                                    Add Stock Transaction
                                 </Dialog.Title>
                                 <form
                                     onSubmit={handleSubmit(onSubmit)}
                                     className="mt-4"
                                 >
-                                    <InputField
-                                        label="Name"
-                                        placeholder="Enter stock name"
-                                        error={errors.name?.message}
-                                        registration={register('name')}
-                                        type={'text'}
-                                        name={'name'}
+                                    <AppSelect
+                                        label="Stock ID"
+                                        name="stockId"
+                                        placeholder="Select Stock ID"
+                                        options={options}
+                                        error={errors.stockId?.message}
+                                        register={register}
+                                        setValue={setValue}
+                                        validation={{
+                                            required: 'Stock ID is required',
+                                        }}
                                     />
                                     <InputField
                                         label="Quantity"
-                                        placeholder="Enter stock quantity"
                                         name="quantity"
+                                        placeholder="Enter Quantity"
                                         type="number"
                                         error={errors.quantity?.message}
-                                        registration={register('quantity')}
+                                        registration={register('quantity', {
+                                            valueAsNumber: true,
+                                        })}
+                                    />
+                                    <AppSelect
+                                        label="Type"
+                                        name="type"
+                                        placeholder="Select Type"
+                                        options={[
+                                            { value: 'ADDITION', label: 'In' },
+                                            { value: 'SUBTRACTION', label: 'Out' },
+                                        ]}
+                                        error={errors.type?.message}
+                                        register={register}
+                                        setValue={setValue}
+                                        validation={{
+                                            required: 'Type is required',
+                                        }}
                                     />
                                     <div className="mt-4 flex justify-end space-x-2">
                                         <button
@@ -119,7 +147,7 @@ const UpdateStockModal: React.FC<UpdateStockModalProps> = ({
                                             className="btn btn-primary"
                                             disabled={loading}
                                         >
-                                            {loading ? 'Updating...' : 'Update'}
+                                            {loading ? 'Adding...' : 'Add'}
                                         </button>
                                     </div>
                                 </form>
@@ -132,4 +160,4 @@ const UpdateStockModal: React.FC<UpdateStockModalProps> = ({
     );
 };
 
-export default UpdateStockModal;
+export default AddStockTransactionModal;
