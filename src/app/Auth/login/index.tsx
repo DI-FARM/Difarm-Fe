@@ -1,7 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { InputField } from '@/components/input';
-import toast from 'react-hot-toast';
 import Logo from '@/assets/logo.png';
 import img2 from '@/assets/istockphoto-2151351987-2048x2048-Photoroom.png';
 import { useLogin } from '@/hooks/api/auth';
@@ -23,7 +22,7 @@ const Login: React.FC = () => {
         e.preventDefault();
         const response = await login(credentials);
         if (response) {
-            navigate('/account');
+            navigate('/choose-farm');
         } 
     };
 

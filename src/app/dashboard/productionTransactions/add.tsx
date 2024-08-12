@@ -5,29 +5,26 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { InputField } from '@/components/input';
 import AppSelect from '@/components/select/SelectField';
-import { useStockTransaction } from '@/hooks/api/stock_transactions';
 import { useStock } from '@/hooks/api/stock';
+import { useProductionTransaction } from '@/hooks/api/production_transaction';
 
 const transactionSchema = z.object({
-    stockId: z.string().nonempty('Stock ID is required'),
     quantity: z.number().min(1, 'Quantity must be at least 1'),
-    type: z
-        .string().min(1, 'Type is required')
-     
+    productType: z.string().nonempty('Product is required'),
+    consumer: z.string().nonempty('Consumer is required'),
 });
 
-interface AddStockTransactionModalProps {
+interface AddProductionTransactionModalProps {
     isOpen: boolean;
     onClose: () => void;
     handleRefetch: () => void;
 }
 
-const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
-    isOpen,
-    onClose,
-    handleRefetch,
-}) => {
-    const { createTransaction, loading, error } = useStockTransaction();
+const AddProductionTransactionModal: React.FC<
+    AddProductionTransactionModalProps
+> = ({ isOpen, onClose, handleRefetch }) => {
+    const { createProductionTransaction, loading, error } =
+        useProductionTransaction();
     const [stockOptions, setStockOptions] = useState<
         { value: string; label: string }[]
     >([]);
@@ -42,20 +39,10 @@ const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
         resolver: zodResolver(transactionSchema),
     });
 
-    const { stocks, getStock }: any = useStock();
-
-    useEffect(() => {
-        getStock();
-    }, []);
-    console.log(stocks)
-    const options = stocks?.data?.stocks?.map((stock: any) => ({
-        value: stock.id,
-        label: stock.name,
-    }));
 
     const onSubmit = async (data: any) => {
         try {
-            await createTransaction(data);
+            await createProductionTransaction(data);
             onClose();
             handleRefetch();
         } catch (err) {}
@@ -91,24 +78,20 @@ const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
                                     as="h3"
                                     className="text-lg font-medium leading-6 text-gray-900"
                                 >
-                                    Add Stock Transaction
+                                    Add Production Transaction
                                 </Dialog.Title>
                                 <form
                                     onSubmit={handleSubmit(onSubmit)}
-                                    className="mt-4"
+                                    className="mt-4 gap-3 "
                                 >
-                                    <AppSelect
-                                        label="Stock ID"
-                                        name="stockId"
-                                        placeholder="Select Stock ID"
-                                        options={options}
-                                        error={errors.stockId?.message}
-                                        register={register}
-                                        setValue={setValue}
-                                        validation={{
-                                            required: 'Stock ID is required',
-                                        }}
-                                    />
+                                    {/* <InputField
+                                        label="Date"
+                                        name="date"
+                                        placeholder="Enter Date"
+                                        type="date"
+                                        error={errors.date?.message}
+                                        registration={register('date')}
+                                    /> */}
                                     <InputField
                                         label="Quantity"
                                         name="quantity"
@@ -119,20 +102,38 @@ const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
                                             valueAsNumber: true,
                                         })}
                                     />
-                                    <AppSelect
-                                        label="Type"
-                                        name="type"
-                                        placeholder="Select Type"
-                                        options={[
-                                            { value: 'ADDITION', label: 'In' },
-                                            { value: 'CONSUME', label: 'Out' },
-                                        ]}
-                                        error={errors.type?.message}
-                                        register={register}
-                                        setValue={setValue}
-                                        validation={{
-                                            required: 'Type is required',
-                                        }}
+                                    <div className="">
+                                        <label
+                                            htmlFor="productName"
+                                            className="block text-sm font-bold text-gray-700"
+                                        >
+                                            Product
+                                        </label>
+                                        <select
+                                            id="productName"
+                                            {...register('productType')}
+                                            className="mt-1 block w-full px-3 py-2 border text-gray-400 border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                                        >
+                                            <option value="">
+                                                Select Product
+                                            </option>
+                                            <option value="MILK">Milk</option>
+                                            <option value="MEAT">Meat</option>
+                                        </select>
+                                        {errors.productName && (
+                                            <p className="text-sm text-red-600">
+                                                Product is required
+                                            </p>
+                                        )}
+                                    </div>
+                                    <InputField
+                                        label="consumer"
+                                        
+                                        name="consumer"
+                                        placeholder="Enter consumer name"
+                                        type="text"
+                                        error={errors.consumer?.message}
+                                        registration={register('consumer')}
                                     />
                                     <div className="mt-4 flex justify-end space-x-2">
                                         <button
@@ -160,4 +161,4 @@ const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
     );
 };
 
-export default AddStockTransactionModal;
+export default AddProductionTransactionModal;

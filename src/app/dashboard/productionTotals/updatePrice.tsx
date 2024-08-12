@@ -1,36 +1,26 @@
 import { z } from 'zod';
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { InputField } from '@/components/input';
-import AppSelect from '@/components/select/SelectField';
-import { useStockTransaction } from '@/hooks/api/stock_transactions';
-import { useStock } from '@/hooks/api/stock';
+import { useProductionTransaction } from '@/hooks/api/production_totals';
 
-const transactionSchema = z.object({
-    stockId: z.string().nonempty('Stock ID is required'),
-    quantity: z.number().min(1, 'Quantity must be at least 1'),
-    type: z
-        .string().min(1, 'Type is required')
-     
+const updateTransactionSchema = z.object({
+    pricePerUnit: z.number().min(0.01, 'Price per unit must be at least 0.01'),
 });
 
-interface AddStockTransactionModalProps {
+interface UpdateProductionTransactionModalProps {
     isOpen: boolean;
     onClose: () => void;
     handleRefetch: () => void;
+    transaction: any; // Update the type according to your data structure
 }
 
-const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
-    isOpen,
-    onClose,
-    handleRefetch,
-}) => {
-    const { createTransaction, loading, error } = useStockTransaction();
-    const [stockOptions, setStockOptions] = useState<
-        { value: string; label: string }[]
-    >([]);
+const UpdateProductionTransactionModal: React.FC<
+    UpdateProductionTransactionModalProps
+> = ({ isOpen, onClose, handleRefetch, transaction }) => {
+    const { updateProductionTransaction, loading } = useProductionTransaction();
 
     const {
         register,
@@ -39,23 +29,26 @@ const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
         reset,
         setValue,
     } = useForm({
-        resolver: zodResolver(transactionSchema),
+        resolver: zodResolver(updateTransactionSchema),
+        defaultValues: {
+            pricePerUnit: transaction?.pricePerUnit ?? 0,
+        },
     });
 
-    const { stocks, getStock }: any = useStock();
-
     useEffect(() => {
-        getStock();
-    }, []);
-    console.log(stocks)
-    const options = stocks?.data?.stocks?.map((stock: any) => ({
-        value: stock.id,
-        label: stock.name,
-    }));
+        if (transaction) {
+            setValue('pricePerUnit', transaction.pricePerUnit);
+        }
+    }, [transaction, setValue]);
 
     const onSubmit = async (data: any) => {
         try {
-            await createTransaction(data);
+            const payload: any = {
+                pricePerUnit: data.pricePerUnit,
+                
+             
+            }
+            await updateProductionTransaction(transaction.id,payload);
             onClose();
             handleRefetch();
         } catch (err) {}
@@ -91,48 +84,21 @@ const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
                                     as="h3"
                                     className="text-lg font-medium leading-6 text-gray-900"
                                 >
-                                    Add Stock Transaction
+                                    Update Price Per Unit
                                 </Dialog.Title>
                                 <form
                                     onSubmit={handleSubmit(onSubmit)}
-                                    className="mt-4"
+                                    className="mt-4 gap-3"
                                 >
-                                    <AppSelect
-                                        label="Stock ID"
-                                        name="stockId"
-                                        placeholder="Select Stock ID"
-                                        options={options}
-                                        error={errors.stockId?.message}
-                                        register={register}
-                                        setValue={setValue}
-                                        validation={{
-                                            required: 'Stock ID is required',
-                                        }}
-                                    />
                                     <InputField
-                                        label="Quantity"
-                                        name="quantity"
-                                        placeholder="Enter Quantity"
+                                        label="Price Per Unit"
+                                        name="pricePerUnit"
+                                        placeholder="Enter Price Per Unit"
                                         type="number"
-                                        error={errors.quantity?.message}
-                                        registration={register('quantity', {
+                                        error={errors.pricePerUnit?.message}
+                                        registration={register('pricePerUnit', {
                                             valueAsNumber: true,
                                         })}
-                                    />
-                                    <AppSelect
-                                        label="Type"
-                                        name="type"
-                                        placeholder="Select Type"
-                                        options={[
-                                            { value: 'ADDITION', label: 'In' },
-                                            { value: 'CONSUME', label: 'Out' },
-                                        ]}
-                                        error={errors.type?.message}
-                                        register={register}
-                                        setValue={setValue}
-                                        validation={{
-                                            required: 'Type is required',
-                                        }}
                                     />
                                     <div className="mt-4 flex justify-end space-x-2">
                                         <button
@@ -147,7 +113,9 @@ const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
                                             className="btn btn-primary"
                                             disabled={loading}
                                         >
-                                            {loading ? 'Adding...' : 'Add'}
+                                            {loading
+                                                ? 'Updating...'
+                                                : 'Update'}
                                         </button>
                                     </div>
                                 </form>
@@ -160,4 +128,4 @@ const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
     );
 };
 
-export default AddStockTransactionModal;
+export default UpdateProductionTransactionModal;

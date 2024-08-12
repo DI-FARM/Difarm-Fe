@@ -14,6 +14,10 @@ import IconHome from '../Icon/IconHome';
 import IconHelpCircle from '../Icon/IconHelpCircle';
 import { isLoggedIn } from '@/hooks/api/auth';
 import IconShoppingBag from '../Icon/IconShoppingBag';
+import IconUsersGroup from '../Icon/IconUsersGroup';
+import { IconBase } from 'react-icons/lib';
+import IconBolt from '../Icon/IconBolt';
+import IconSquareRotated from '../Icon/IconSquareRotated';
 
 const Sidebar = () => {
     const [currentMenu, setCurrentMenu] = useState<string>('');
@@ -42,14 +46,14 @@ const Sidebar = () => {
             to: '/account/users',
             icon: IconUsers,
             current: location.pathname === '/account/users',
-            roles: ['SUPERADMIN'],
+            roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
         },
         {
             name: 'Farms',
             to: '/account/farms',
             icon: IconHome,
             current: location.pathname === '/account/farms',
-            roles: ['SUPERADMIN'],
+            roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
         },
         {
             name: 'Cattle',
@@ -63,6 +67,20 @@ const Sidebar = () => {
             to: '/account/production',
             icon: FaSwatchbook,
             current: location.pathname === '/account/production',
+            roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
+        },
+        {
+            name: 'Production Totals',
+            to: '/account/production_totals',
+            icon: IconShoppingBag,
+            current: location.pathname === '/account/production_totals',
+            roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
+        },
+        {
+            name: 'Production Transactions',
+            to: '/account/production_transactions',
+            icon: IconSquareRotated,
+            current: location.pathname === '/account/production_transactions',
             roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
         },
         {
@@ -84,6 +102,21 @@ const Sidebar = () => {
             to: '/account/vaccine',
             icon: IconHelpCircle,
             current: location.pathname === '/account/vaccine',
+            roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
+        },
+        
+        {
+            name: 'Veterinarian',
+            to: '/account/veterinarian',
+            icon: IconUsersGroup,
+            current: location.pathname === '/account/veterinarian',
+            roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
+        },
+        {
+            name: 'Inseminations',
+            to: '/account/inseminations',
+            icon: IconBolt,
+            current: location.pathname === '/account/inseminations',
             roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
         },
     ];

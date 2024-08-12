@@ -125,6 +125,7 @@ export const useUsers = () => {
             toast.success('Users Created successfully');
         } catch (error:any) {
             setError(error);
+            toast.error(error);
         } finally {
             setLoading(false);
         }

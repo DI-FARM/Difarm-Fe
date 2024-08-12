@@ -11,12 +11,13 @@ interface StockTransactionData {
 export const useStockTransaction = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const FarmId = localStorage.getItem('FarmId');
 const [stock_transactions, setStockTransactions] = useState([])
 const getStockTransactions = async () => {
     setLoading(true);
     setError(null);
     try {
-        const response = await api.get('/stock-transactions');
+        const response = await api.get(`/stock-transactions/${FarmId}`);
         setStockTransactions(response.data);
     } catch (error: any) {
         const errorMessage =
@@ -32,7 +33,7 @@ const createTransaction = async (data: StockTransactionData) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await api.post('/stock-transactions', data);
+            const response = await api.post( `/stock-transactions/${FarmId}`, data);
             toast.success('Stock transaction created successfully');
             return response.data;
         } catch (error: any) {

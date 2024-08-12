@@ -1,25 +1,21 @@
 import { z } from 'zod';
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { InputField } from '@/components/input';
-import { useUsers } from '@/hooks/api/auth';
+import { useVeterinarians } from '@/hooks/api/vet';
 
-
-const userSchema = z.object({
-    fullname: z.string().nonempty('Full name is required'),
-    username: z.string().nonempty('Username is required'),
+const veterinarianSchema = z.object({
+    name: z.string().nonempty('Full name is required'),
+  
     email: z.string().nonempty('Email is required').email('Invalid email address'),
-    gender: z.string().nonempty('Gender is required'),
+    
     phone: z.string().nonempty('Phone is required'),
-    password: z.string()
-        .nonempty('Password is required')
-        .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 'Password must be at least 8 characters long and include at least one letter, one number, and one special character'),
 });
 
-const AddUserModal = ({ isOpen, onClose, handleRefetch }:any) => {
-    const { addUser, loading, error } = useUsers();
+const UpdateVeterinarianModal = ({ isOpen, onClose, vet, handleRefetch }: any) => {
+    const { updateVeterinarian, loading, error } = useVeterinarians();
 
     const {
         register,
@@ -27,17 +23,17 @@ const AddUserModal = ({ isOpen, onClose, handleRefetch }:any) => {
         formState: { errors },
         reset,
     } = useForm({
-        resolver: zodResolver(userSchema),
+        resolver: zodResolver(veterinarianSchema),
+        defaultValues: vet,
     });
 
-    const FarmId = localStorage.getItem('FarmId');
-    const onSubmit = async (data:any) => {
+    useEffect(() => {
+        reset(vet);
+    }, [vet, reset]);
+
+    const onSubmit = async (data: any) => {
         try {
-            const payload  = {
-                ...data,
-                farmId :FarmId
-            }
-            await addUser(payload);
+            await updateVeterinarian(vet.id, data);
             onClose();
             handleRefetch();
             reset();
@@ -71,7 +67,7 @@ const AddUserModal = ({ isOpen, onClose, handleRefetch }:any) => {
                         >
                             <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-xl my-8 text-black dark:text-white-dark">
                                 <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
-                                    <div className="font-bold text-lg">Add User</div>
+                                    <div className="font-bold text-lg">Update Veterinarian</div>
                                 </div>
                                 <div className="p-5">
                                     {error && (
@@ -85,74 +81,38 @@ const AddUserModal = ({ isOpen, onClose, handleRefetch }:any) => {
                                                 <InputField
                                                     type="text"
                                                     label="Full Name"
+                                                    defaultValue={vet?.name}
                                                     placeholder="Enter full name"
-                                                    registration={register('fullname')}
-                                                    error={errors.fullname?.message}
-                                                    name="fullName"
+                                                    registration={register('name')}
+                                                    error={errors.name?.message}
+                                                    name="fullname"
                                                 />
                                             </div>
-                                            <div className="mb-4">
-                                                <InputField
-                                                    type="text"
-                                                    label="Username"
-                                                    placeholder="Enter username"
-                                                    registration={register('username')}
-                                                    error={errors.username?.message}
-                                                    name="username"
-                                                />
-                                            </div>
+                                         
                                             <div className="mb-4">
                                                 <InputField
                                                     type="email"
                                                     label="Email"
+                                                    defaultValue={vet?.email}
                                                     placeholder="Enter email"
                                                     registration={register('email')}
                                                     error={errors.email?.message}
                                                     name="email"
                                                 />
                                             </div>
-                                            <div className="mb-4">
-                                                <label
-                                                    htmlFor="gender"
-                                                    className="block text-sm font-bold text-gray-700"
-                                                >
-                                                    Gender
-                                                </label>
-                                                <select
-                                                    id="gender"
-                                                    {...register('gender')}
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                >
-                                                    <option value="">Select Gender</option>
-                                                    <option value="MALE">Male</option>
-                                                    <option value="FEMALE">Female</option>
-                                                </select>
-                                                {errors.gender && (
-                                                    <p className="mt-2 text-sm text-red-600">
-                                                        Gender is required
-                                                    </p>
-                                                )}
-                                            </div>
+                                         
                                             <div className="mb-4">
                                                 <InputField
                                                     type="text"
                                                     label="Phone"
+                                                    defaultValue={vet?.phone}
                                                     placeholder="Enter phone number"
                                                     registration={register('phone')}
                                                     error={errors.phone?.message}
                                                     name="phone"
                                                 />
                                             </div>
-                                            <div className="mb-4">
-                                                <InputField
-                                                    type="password"
-                                                    label="Password"
-                                                    placeholder="Enter password"
-                                                    registration={register('password')}
-                                                    error={errors.password?.message}
-                                                    name="password"
-                                                />
-                                            </div>
+                                            
                                         </div>
                                         <div className="flex justify-end items-center mt-8">
                                             <button
@@ -181,4 +141,4 @@ const AddUserModal = ({ isOpen, onClose, handleRefetch }:any) => {
     );
 };
 
-export default AddUserModal;
+export default UpdateVeterinarianModal;

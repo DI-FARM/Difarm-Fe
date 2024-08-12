@@ -1,70 +1,62 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DataTableV2, { TableColumnV2 } from '@/components/datatable';
 import formatDateToLongForm from '@/utils/DateFormattter';
-import { capitalize } from 'lodash';
 import IconPlus from '@/components/Icon/IconPlus';
 import IconEdit from '@/components/Icon/IconEdit';
 import IconTrash from '@/components/Icon/IconTrash';
 import { toast } from 'react-hot-toast';
-import { useUsers } from '@/hooks/api/auth';
-import AddUserModal from './add_user';
-import UpdateUserModal from './update_user';
-import ConfirmDeleteModal from './delete';
+import { useVaccineRecords } from '@/hooks/api/vaccinr';
+import AddVaccineRecordModal from './add_vaccine';
+import UpdateVaccineModal from './update_vaccine';
 
 
-const Users = () => {
-    const { users, loading, refetch, deleteUser }:any = useUsers();
+const VaccineRecords = () => {
+    const { vaccineRecords, loading, getVaccineRecords, deleteVaccineRecord }: any = useVaccineRecords();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<any>({});
+    const [selectedRecord, setSelectedRecord] = useState<any>({});
+
+    useEffect(() => {
+        getVaccineRecords();
+    }, []);
 
     const handleDelete = async () => {
         try {
-            await deleteUser(selectedUser?.id);
-            toast.success('User deleted successfully');
-            refetch();
+            await deleteVaccineRecord(selectedRecord?.id);
+            toast.success('Vaccine record deleted successfully');
+            getVaccineRecords();
         } catch (error) {
-            toast.error('Failed to delete user');
+            toast.error('Failed to delete vaccine record');
         } finally {
             setIsDeleteModalOpen(false);
         }
     };
 
     const handleRefetch = () => {
-        refetch();
+        getVaccineRecords();
     };
 
     const columns: TableColumnV2<any>[] = [
         {
-            title: 'Full Name',
-            accessor: 'fullName',
-            render: row => <p>{row?.fullname}</p>,
+            title: 'Cattle ',
+            accessor: 'cattle.tagNumber',
+            render: row => <p>{row?.cattle.breed}({row?.cattle.tagNumber})</p>,
         },
         {
-            title: 'Username',
-            accessor: 'username',
-            render: row => <p>{row?.account.username}</p>,
+            title: 'Date',
+            accessor: 'date',
+            render: row => <p>{formatDateToLongForm(row?.date)}</p>,
         },
         {
-            title: 'Email',
-            accessor: 'email',
-            render: row => <p>{row?.account.email}</p>,
+            title: 'Vaccine Type',
+            accessor: 'vaccineType',
+            render: row => <p>{row?.vaccineType}</p>,
         },
         {
-            title: 'Gender',
-            accessor: 'gender',
-            render: row => <p>{capitalize(row?.gender)}</p>,
-        },
-        {
-            title: 'Phone',
-            accessor: 'phone',
-            render: row => <p>{row?.account.phone}</p>,
-        },
-        {
-            title: 'Role',
-            accessor: 'role',
-            render: row => <p>{row?.account.role}</p>,
+            title: 'Veterinarian ID',
+            accessor: 'vetId',
+            render: row => <p>{row?.vetId}</p>,
         },
         {
             title: 'Actions',
@@ -73,27 +65,20 @@ const Users = () => {
                 <div className="flex gap-2 justify-center">
                     <button
                         onClick={() => {
-                            setSelectedUser(row);
+                            setSelectedRecord(row);
                             setIsUpdateModalOpen(true);
                         }}
                         className=""
                     >
                         <IconEdit className="text-primary" />
                     </button>
-                    <button
-                        onClick={() => {
-                            setSelectedUser(row);
-                            setIsDeleteModalOpen(true);
-                        }}
-                        className=""
-                    >
-                        <IconTrash className="text-danger" />
-                    </button>
+                   
                 </div>
             ),
         },
     ];
 
+    console.log(vaccineRecords)
     return (
         <div className="">
             <ol className="flex text-gray-500 font-semibold dark:text-white-dark">
@@ -104,7 +89,7 @@ const Users = () => {
                 </li>
                 <li className="before:content-['/'] before:px-1.5">
                     <button className="text-black dark:text-white-light hover:text-black/70 dark:hover:text-white-light/70">
-                        Users
+                        Vaccine Records
                     </button>
                 </li>
             </ol>
@@ -116,26 +101,22 @@ const Users = () => {
                     className="btn btn-primary flex items-center gap-1"
                 >
                     <IconPlus />
-                    Add User
+                    Add Vaccine Record
                 </button>
             </div>
 
-            <AddUserModal
+            <AddVaccineRecordModal
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
                 handleRefetch={handleRefetch}
             />
-            <UpdateUserModal
+            <UpdateVaccineModal
                 isOpen={isUpdateModalOpen}
                 onClose={() => setIsUpdateModalOpen(false)}
-                user={selectedUser}
+                vaccine={selectedRecord}
                 handleRefetch={handleRefetch}
             />
-            <ConfirmDeleteModal
-                isOpen={isDeleteModalOpen}
-                onClose={() => setIsDeleteModalOpen(false)}
-                onConfirm={handleDelete}
-            />
+          
 
             <div className="w-full">
                 <DataTableV2
@@ -143,15 +124,15 @@ const Users = () => {
                     previousPage={0}
                     nextPage={0}
                     currentPage={1}
-                    data={users?.data ?? []}
-                    total={users?.data?.length ?? 0}
+                    data={vaccineRecords?.data?.vaccinations ?? []}
+                    total={vaccineRecords?.data?.totalPages ?? 0}
                     lastPage={1}
                     isLoading={loading}
-                    tableName={'Users'}
+                    tableName={'Vaccine Records'}
                 />
             </div>
         </div>
     );
 };
 
-export default Users;
+export default VaccineRecords;

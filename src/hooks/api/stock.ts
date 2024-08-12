@@ -10,12 +10,13 @@ interface StockData {
 export const useStock = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const FarmId = localStorage.getItem('FarmId');
 const [stocks,setStock]= useState([])
 const getStock = async () => {
     setLoading(true);
     setError(null);
     try {
-        const response = await api.get('/stocks');
+        const response = await api.get(`/stocks/${FarmId}`);
         setStock(response.data);
     } catch (error: any) {
         const errorMessage = error.response?.data?.message || 'An error occurred while fetching stocks.';
@@ -28,7 +29,7 @@ const getStock = async () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await api.post('/stocks', data);
+            const response = await api.post(`/stocks/${FarmId}`, data);
             toast.success('Stock created successfully');
             return response.data;
         } catch (error: any) {

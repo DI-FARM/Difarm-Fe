@@ -14,12 +14,13 @@ export const useProduction = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 const [productions, setProductions] = useState([]);
+const farmId = localStorage.getItem('FarmId');
 
  const getProductions = async () => {
     setLoading(true);
     setError(null);
     try {
-        const response = await api.get('/productions');
+        const response = await api.get(`/productions/${farmId}`);
         setProductions(response.data);
     } catch (error: any) {
         const errorMessage =
@@ -35,7 +36,7 @@ const createProduction = async (data: ProductionData) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await api.post('/productions', data);
+            const response = await api.post(`/productions/${farmId}`, data);
             toast.success('Production created successfully');
             return response.data;
         } catch (error: any) {

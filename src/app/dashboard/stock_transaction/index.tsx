@@ -53,12 +53,12 @@ const StockTransactionManagement = () => {
         {
             title: 'Stock ',
             accessor: 'stock.name',
-            render: row => <p>{row.stock.name}</p>,
+            render: row => <p>{row?.stock?.name}</p>,
         },
         {
             title: 'Total ',
             accessor: 'stock.quantity',
-            render: row => <p>{row.stock.quantity}</p>,
+            render: row => <p>{row?.stock?.quantity}</p>,
         },
         {
             title: 'Quantity',
@@ -153,7 +153,7 @@ const StockTransactionManagement = () => {
                     previousPage={0}
                     nextPage={0}
                     currentPage={1}
-                    data={stock_transactions?.data?? []} 
+                    data={stock_transactions?.data?.transactions?? []} 
                     total={stock_transactions?.data?.length ?? 0}
                     lastPage={1}
                     isLoading={loading}

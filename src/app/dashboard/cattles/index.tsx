@@ -87,11 +87,6 @@ const CattleList = () => {
             render: row => <p>{formatDateToLongForm(row?.lastCheckupDate)}</p>,
         },
         {
-            title: 'Vaccine History',
-            accessor: 'vaccineHistory',
-            render: row => <p>{row?.vaccineHistory}</p>,
-        },
-        {
             title: 'Purchase Date',
             accessor: 'purchaseDate',
             render: row => <p>{formatDateToLongForm(row?.purchaseDate)}</p>,
@@ -174,7 +169,7 @@ const CattleList = () => {
                     previousPage={0}
                     nextPage={0}
                     currentPage={1}
-                    data={cattle?.data ?? []}
+                    data={cattle?.data?.cattles ?? []}
                     total={cattle?.data?.length ?? 0}
                     lastPage={1}
                     isLoading={loading}

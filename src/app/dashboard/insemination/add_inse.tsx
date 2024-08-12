@@ -5,32 +5,32 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { InputField } from '@/components/input';
 import AppSelect from '@/components/select/SelectField';
-import { useStockTransaction } from '@/hooks/api/stock_transactions';
-import { useStock } from '@/hooks/api/stock';
+import { useCattle } from '@/hooks/api/cattle';
+import { useVeterinarians } from '@/hooks/api/vet';
+import { useInseminationRecords } from '@/hooks/api/insemination';
 
-const transactionSchema = z.object({
-    stockId: z.string().nonempty('Stock ID is required'),
-    quantity: z.number().min(1, 'Quantity must be at least 1'),
-    type: z
-        .string().min(1, 'Type is required')
-     
+const inseminationRecordSchema = z.object({
+    cattleId: z.string().nonempty('Cattle ID is required'),
+    method: z.string().nonempty('Method is required'),
+    type: z.string().nonempty('Type is required'),
+    vetId: z.string().nonempty('Veterinarian ID is required'),
+    date: z.string().nonempty('Date is required'),
 });
 
-interface AddStockTransactionModalProps {
+interface AddInseminationRecordModalProps {
     isOpen: boolean;
     onClose: () => void;
     handleRefetch: () => void;
 }
 
-const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
+const AddInseminationRecordModal: React.FC<AddInseminationRecordModalProps> = ({
     isOpen,
     onClose,
     handleRefetch,
 }) => {
-    const { createTransaction, loading, error } = useStockTransaction();
-    const [stockOptions, setStockOptions] = useState<
-        { value: string; label: string }[]
-    >([]);
+    const { createInseminationRecord, loading, error } = useInseminationRecords();
+    const { cattle, fetchCattle }: any = useCattle();
+    const { veterinarians, getVeterinarians }: any = useVeterinarians();
 
     const {
         register,
@@ -39,26 +39,36 @@ const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
         reset,
         setValue,
     } = useForm({
-        resolver: zodResolver(transactionSchema),
+        resolver: zodResolver(inseminationRecordSchema),
     });
 
-    const { stocks, getStock }: any = useStock();
-
     useEffect(() => {
-        getStock();
+        fetchCattle();
+        getVeterinarians();
     }, []);
-    console.log(stocks)
-    const options = stocks?.data?.stocks?.map((stock: any) => ({
-        value: stock.id,
-        label: stock.name,
+
+    const cattleOptions = cattle?.data?.cattles?.map((item: any) => ({
+        value: item.id,
+        label: item.tagNumber,
     }));
 
+    const vetOptions = veterinarians?.data?.veterinarians?.map((item: any) => ({
+        value: item.id,
+        label: `${item.name}`,
+    }));
+const farmId = localStorage.getItem('FarmId');
     const onSubmit = async (data: any) => {
         try {
-            await createTransaction(data);
+            const payload = {
+                ...data,
+                farmId:farmId
+            }
+            await createInseminationRecord(payload);
             onClose();
             handleRefetch();
-        } catch (err) {}
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     return (
@@ -91,48 +101,59 @@ const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
                                     as="h3"
                                     className="text-lg font-medium leading-6 text-gray-900"
                                 >
-                                    Add Stock Transaction
+                                    Add Insemination Record
                                 </Dialog.Title>
                                 <form
                                     onSubmit={handleSubmit(onSubmit)}
                                     className="mt-4"
                                 >
                                     <AppSelect
-                                        label="Stock ID"
-                                        name="stockId"
-                                        placeholder="Select Stock ID"
-                                        options={options}
-                                        error={errors.stockId?.message}
+                                        label="Cattle ID"
+                                        name="cattleId"
+                                        placeholder="Select Cattle ID"
+                                        options={cattleOptions}
+                                        error={errors.cattleId?.message}
                                         register={register}
                                         setValue={setValue}
                                         validation={{
-                                            required: 'Stock ID is required',
+                                            required: 'Cattle ID is required',
                                         }}
                                     />
                                     <InputField
-                                        label="Quantity"
-                                        name="quantity"
-                                        placeholder="Enter Quantity"
-                                        type="number"
-                                        error={errors.quantity?.message}
-                                        registration={register('quantity', {
-                                            valueAsNumber: true,
-                                        })}
+                                        label="Method"
+                                        name="method"
+                                        placeholder="Enter Method"
+                                        type="text"
+                                        error={errors.method?.message}
+                                        registration={register('method')}
                                     />
-                                    <AppSelect
+                                    <InputField
                                         label="Type"
                                         name="type"
-                                        placeholder="Select Type"
-                                        options={[
-                                            { value: 'ADDITION', label: 'In' },
-                                            { value: 'CONSUME', label: 'Out' },
-                                        ]}
+                                        placeholder="Enter Type"
+                                        type="text"
                                         error={errors.type?.message}
+                                        registration={register('type')}
+                                    />
+                                    <AppSelect
+                                        label="Veterinarian ID"
+                                        name="vetId"
+                                        placeholder="Select Veterinarian ID"
+                                        options={vetOptions}
+                                        error={errors.vetId?.message}
                                         register={register}
                                         setValue={setValue}
                                         validation={{
-                                            required: 'Type is required',
+                                            required: 'Veterinarian ID is required',
                                         }}
+                                    />
+                                      <InputField
+                                        label="Date"
+                                        name="date"
+                                        placeholder="Enter Date"
+                                        type="date"
+                                        error={errors.date?.message}
+                                        registration={register('date')}
                                     />
                                     <div className="mt-4 flex justify-end space-x-2">
                                         <button
@@ -160,4 +181,4 @@ const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
     );
 };
 
-export default AddStockTransactionModal;
+export default AddInseminationRecordModal;

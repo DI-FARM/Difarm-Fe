@@ -4,27 +4,25 @@ import { Fragment, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { InputField } from '@/components/input';
-import { useStockTransaction } from '@/hooks/api/stock_transactions';
 import AppSelect from '@/components/select/SelectField';
-import { useStock } from '@/hooks/api/stock';
+import { useProductionTransaction } from '@/hooks/api/production_transaction';
 
-const transactionSchema = z.object({
-    stockId: z.string().nonempty('Stock ID is required'),
+const productionTransactionSchema = z.object({
     quantity: z.number().min(1, 'Quantity must be at least 1'),
-    type: z.string().nonempty('Type is required'),
+    productName: z.string().nonempty('Product is required'),
 });
 
-interface UpdateStockTransactionModalProps {
+interface UpdateProductionTransactionModalProps {
     isOpen: boolean;
     onClose: () => void;
     transaction: any;
     handleRefetch: () => void;
 }
 
-const UpdateStockTransactionModal: React.FC<
-    UpdateStockTransactionModalProps
+const UpdateProductionTransactionModal: React.FC<
+    UpdateProductionTransactionModalProps
 > = ({ isOpen, onClose, transaction, handleRefetch }) => {
-    const { updateTransaction, loading, error } = useStockTransaction();
+    const { updateProductionTransaction, loading, error, getProductionTransactions,production_transactions} = useProductionTransaction();
 
     const {
         register,
@@ -33,7 +31,7 @@ const UpdateStockTransactionModal: React.FC<
         reset,
         setValue,
     } = useForm({
-        resolver: zodResolver(transactionSchema),
+        resolver: zodResolver(productionTransactionSchema),
         defaultValues: transaction,
     });
 
@@ -45,78 +43,74 @@ const UpdateStockTransactionModal: React.FC<
 
     const onSubmit = async (data: any) => {
         try {
-            await updateTransaction(transaction.id, data);
+            await updateProductionTransaction(transaction.id, data);
             onClose();
             handleRefetch();
         } catch (err) {}
     };
-    const { stocks, getStock }: any = useStock();
 
-    useEffect(() => {
-        getStock();
-    }, []);
-    console.log(stocks)
-    const options = stocks?.data?.stocks.map((stock: any) => ({
-        value: stock.id,
-        label: stock.name,
+   
+
+    const options = transaction?.data?.map((production: any) => ({
+        value: production.id,
+        label: production.name,
     }));
-
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" open={isOpen} onClose={onClose}>
-            <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-            >
-                <div className="fixed inset-0" />
-            </Transition.Child>
-            <div className="fixed inset-0 bg-[black]/60 z-[999] overflow-y-auto">
-                <div className="flex items-start justify-center min-h-screen px-4">
-                    <Transition.Child
-                        as={Fragment}
-                        enter="ease-out duration-300"
-                        enterFrom="opacity-0 scale-95"
-                        enterTo="opacity-100 scale-100"
-                        leave="ease-in duration-200"
-                        leaveFrom="opacity-100 scale-100"
-                        leaveTo="opacity-0 scale-95"
-                    >
+            <Dialog as="div" open={isOpen} onClose={onClose}>
+                <Transition.Child
+                    as={Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="ease-in duration-200"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                >
+                    <div className="fixed inset-0" />
+                </Transition.Child>
+                <div className="fixed inset-0 bg-[black]/60 z-[999] overflow-y-auto">
+                    <div className="flex items-start justify-center min-h-screen px-4">
+                        <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0 scale-95"
+                            enterTo="opacity-100 scale-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100 scale-100"
+                            leaveTo="opacity-0 scale-95"
+                        >
                             <Dialog.Panel className="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
                                 <Dialog.Title
                                     as="h3"
                                     className="text-lg font-medium leading-6 text-gray-900"
                                 >
-                                    Update Stock Transaction
+                                    Update Production Transaction
                                 </Dialog.Title>
                                 <form
                                     onSubmit={handleSubmit(onSubmit)}
                                     className="mt-4"
                                 >
                                     <AppSelect
-                                        label="Stock ID"
-                                        name="stockId"
-                                        placeholder="Select Stock ID"
+                                        label="Production ID"
+                                        name="productionId"
+                                        placeholder="Select Production ID"
                                         options={options}
-                                        defaultValue={ {
-                                            label: `${transaction?.stock.name} `,
-                                            value: transaction?.id,
+                                        defaultValue={{
+                                            label: transaction?.production?.name,
+                                            value: transaction?.productionId,
                                         }}
-                                        error={errors.stockId?.message}
+                                        error={errors.productionId?.message}
                                         register={register}
                                         setValue={setValue}
                                         validation={{
-                                            required: 'Stock ID is required',
+                                            required: 'Production ID is required',
                                         }}
                                     />
                                     <InputField
                                         label="Quantity"
-                                        placeholder="Inter quantity"
+                                        placeholder="Enter quantity"
                                         type="number"
                                         defaultValue={transaction?.quantity}
                                         error={errors.quantity?.message}
@@ -130,11 +124,11 @@ const UpdateStockTransactionModal: React.FC<
                                         name="type"
                                         placeholder="Select Type"
                                         options={[
-                                            { value: 'ADDITION', label: 'In' },
-                                            { value: 'CONSUME', label: 'Out' },
+                                            { value: 'PRODUCTION', label: 'Produced' },
+                                            { value: 'CONSUMPTION', label: 'Consumed' },
                                         ]}
-                                        defaultValue={ {
-                                            label: `${transaction?.type} `,
+                                        defaultValue={{
+                                            label: transaction?.type,
                                             value: transaction?.type,
                                         }}
                                         error={errors.type?.message}
@@ -162,12 +156,12 @@ const UpdateStockTransactionModal: React.FC<
                                     </div>
                                 </form>
                             </Dialog.Panel>
-                    </Transition.Child>
+                        </Transition.Child>
+                    </div>
                 </div>
-            </div>
-        </Dialog>
-    </Transition>
+            </Dialog>
+        </Transition>
     );
 };
 
-export default UpdateStockTransactionModal;
+export default UpdateProductionTransactionModal;

@@ -5,33 +5,33 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { InputField } from '@/components/input';
 import AppSelect from '@/components/select/SelectField';
-import { useStockTransaction } from '@/hooks/api/stock_transactions';
-import { useStock } from '@/hooks/api/stock';
+import { useCattle } from '@/hooks/api/cattle';
+import { useVeterinarians } from '@/hooks/api/vet';
+import { useVaccineRecords } from '@/hooks/api/vaccinr';
 
-const transactionSchema = z.object({
-    stockId: z.string().nonempty('Stock ID is required'),
-    quantity: z.number().min(1, 'Quantity must be at least 1'),
-    type: z
-        .string().min(1, 'Type is required')
-     
+
+const vaccineRecordSchema = z.object({
+    cattleId: z.string().nonempty('Cattle ID is required'),
+    date: z.string().nonempty('Date is required'),
+    vaccineType: z.string().nonempty('Vaccine type is required'),
+    vetId: z.string().nonempty('Veterinarian ID is required'),
 });
 
-interface AddStockTransactionModalProps {
+interface AddVaccineRecordModalProps {
     isOpen: boolean;
     onClose: () => void;
     handleRefetch: () => void;
 }
 
-const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
+const AddVaccineRecordModal: React.FC<AddVaccineRecordModalProps> = ({
     isOpen,
     onClose,
     handleRefetch,
 }) => {
-    const { createTransaction, loading, error } = useStockTransaction();
-    const [stockOptions, setStockOptions] = useState<
-        { value: string; label: string }[]
-    >([]);
-
+    const { createVaccineRecord, loading, error } = useVaccineRecords();
+    const { cattle, fetchCattle }: any = useCattle();
+    const { veterinarians, getVeterinarians }: any = useVeterinarians();
+    
     const {
         register,
         handleSubmit,
@@ -39,26 +39,37 @@ const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
         reset,
         setValue,
     } = useForm({
-        resolver: zodResolver(transactionSchema),
+        resolver: zodResolver(vaccineRecordSchema),
     });
 
-    const { stocks, getStock }: any = useStock();
-
     useEffect(() => {
-        getStock();
+        fetchCattle();
+        getVeterinarians();
     }, []);
-    console.log(stocks)
-    const options = stocks?.data?.stocks?.map((stock: any) => ({
-        value: stock.id,
-        label: stock.name,
+
+    const cattleOptions = cattle?.data?.cattles?.map((item: any) => ({
+        value: item.id,
+        label: item.tagNumber,
+    }));
+
+    const vetOptions = veterinarians?.data?.veterinarians.map((item: any) => ({
+        value: item.id,
+        label: `${item.name}`,
     }));
 
     const onSubmit = async (data: any) => {
         try {
-            await createTransaction(data);
+            const farmId =localStorage.getItem('FarmId');
+            const payload={
+                ...data,
+                farmId:farmId
+            }
+            await createVaccineRecord(payload);
             onClose();
             handleRefetch();
-        } catch (err) {}
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     return (
@@ -91,47 +102,50 @@ const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
                                     as="h3"
                                     className="text-lg font-medium leading-6 text-gray-900"
                                 >
-                                    Add Stock Transaction
+                                    Add Vaccine Record
                                 </Dialog.Title>
                                 <form
                                     onSubmit={handleSubmit(onSubmit)}
-                                    className="mt-4"
+                                    className="mt-4 grid gap-4"
                                 >
                                     <AppSelect
-                                        label="Stock ID"
-                                        name="stockId"
-                                        placeholder="Select Stock ID"
-                                        options={options}
-                                        error={errors.stockId?.message}
+                                        label="Cattle ID"
+                                        name="cattleId"
+                                        placeholder="Select Cattle ID"
+                                        options={cattleOptions}
+                                        error={errors.cattleId?.message}
                                         register={register}
                                         setValue={setValue}
                                         validation={{
-                                            required: 'Stock ID is required',
+                                            required: 'Cattle ID is required',
                                         }}
                                     />
                                     <InputField
-                                        label="Quantity"
-                                        name="quantity"
-                                        placeholder="Enter Quantity"
-                                        type="number"
-                                        error={errors.quantity?.message}
-                                        registration={register('quantity', {
-                                            valueAsNumber: true,
-                                        })}
+                                        label="Date"
+                                        name="date"
+                                        placeholder="Enter Date"
+                                        type="date"
+                                        error={errors.date?.message}
+                                        registration={register('date')}
+                                    />
+                                    <InputField
+                                        label="Vaccine Type"
+                                        name="vaccineType"
+                                        placeholder="Enter Vaccine Type"
+                                        type="text"
+                                        error={errors.vaccineType?.message}
+                                        registration={register('vaccineType')}
                                     />
                                     <AppSelect
-                                        label="Type"
-                                        name="type"
-                                        placeholder="Select Type"
-                                        options={[
-                                            { value: 'ADDITION', label: 'In' },
-                                            { value: 'CONSUME', label: 'Out' },
-                                        ]}
-                                        error={errors.type?.message}
+                                        label="Veterinarian"
+                                        name="vetId"
+                                        placeholder="Select Veterinarian"
+                                        options={vetOptions}
+                                        error={errors.vetId?.message}
                                         register={register}
                                         setValue={setValue}
                                         validation={{
-                                            required: 'Type is required',
+                                            required: 'Veterinarian ID is required',
                                         }}
                                     />
                                     <div className="mt-4 flex justify-end space-x-2">
@@ -160,4 +174,4 @@ const AddStockTransactionModal: React.FC<AddStockTransactionModalProps> = ({
     );
 };
 
-export default AddStockTransactionModal;
+export default AddVaccineRecordModal;

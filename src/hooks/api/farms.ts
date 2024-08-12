@@ -107,3 +107,36 @@ export const useDeleteFarm = () => {
 
     return { deleteFarm, loading, error };
 };
+
+
+
+export const useGetFarmById = (id: string) => {
+    const [farm, setFarm] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchFarm = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await api.get(`/farms/farm/${id}`);
+                setFarm(response.data);
+            } catch (error: any) {
+                const errorMessage =
+                    error.response?.data?.message ||
+                    'An error occurred while fetching the farm.';
+                toast.error(errorMessage);
+                setError(errorMessage);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchFarm();
+        }
+    }, [id]);
+
+    return { farm, loading, error };
+};

@@ -7,6 +7,7 @@ import { InputField } from '@/components/input';
 import { ProductionData } from '@/core';
 import { useProduction } from '@/hooks/api/productions';
 import AppSelect from '@/components/select/SelectField';
+import { useCattle } from '@/hooks/api/cattle';
 
 const productionSchema = z.object({
     cattleId: z.string().nonempty('Cattle ID is required'),
@@ -20,7 +21,6 @@ interface UpdateProductionModalProps {
     isOpen: boolean;
     onClose: () => void;
     handleRefetch: () => void;
-    cattle: any;
     production: any;
 }
 
@@ -28,7 +28,6 @@ const UpdateProduction: React.FC<UpdateProductionModalProps> = ({
     isOpen,
     onClose,
     handleRefetch,
-    cattle,
     production,
 }) => {
     const { updateProduction, loading, error } = useProduction();
@@ -36,10 +35,10 @@ const UpdateProduction: React.FC<UpdateProductionModalProps> = ({
     const {
         register,
         handleSubmit,
-        control, 
+        control,
         formState: { errors },
         reset,
-        setValue, 
+        setValue,
     } = useForm({
         resolver: zodResolver(productionSchema),
         defaultValues: {
@@ -80,6 +79,7 @@ const UpdateProduction: React.FC<UpdateProductionModalProps> = ({
         }
     }, [production, reset, setValue]);
 
+    const { fetchCattle, cattle } :any= useCattle();
     const onSubmit = async (data: ProductionData) => {
         try {
             const payload = {
@@ -96,11 +96,21 @@ const UpdateProduction: React.FC<UpdateProductionModalProps> = ({
     };
 
     // Prepare options for AppSelect
-    const options = cattle?.data?.map((item: { id: string, tagNumber: string }) => ({
-        label: item.tagNumber,
-        value: item.id,
-    })) || [];
+    useEffect(() => {
+        fetchCattle();
+    }, []);
 
+    console.log(cattle);
+
+    const options =
+        cattle?.data?.cattles?.map(
+            (cattle: { breed: any; id: string; tagNumber: string }) => ({
+                value: cattle.id,
+                label: `${cattle.tagNumber}(${cattle.breed}) `,
+            })
+        ) || [];
+
+        const cattleData = production?.farm?.cattle.find((cattle: any) => cattle.id === production?.cattleId);
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" open={isOpen} onClose={onClose}>
@@ -141,40 +151,66 @@ const UpdateProduction: React.FC<UpdateProductionModalProps> = ({
                                     <form onSubmit={handleSubmit(onSubmit)}>
                                         <div className="grid grid-cols-2 gap-2">
                                             <div className="mb-4">
-                                            <AppSelect
+                                                <AppSelect
                                                     label="Cattle"
                                                     name="cattleId"
                                                     placeholder="Select Cattle"
                                                     options={options}
-                                                    defaultValue={ {
-                                                        label: `${production?.cattle.tagNumber}(${production?.cattle.breed}) `,
-                                                        value: production?.cattle?.id,
+                                                    defaultValue={{
+                                                        label: `${cattleData?.tagNumber}(${cattleData?.breed}) `,
+                                                        value: cattleData
+                                                            ?.id,
                                                     }}
-                                                    error={errors.cattleId?.message}
+                                                    error={
+                                                        errors.cattleId?.message
+                                                    }
                                                     register={register}
                                                     setValue={setValue}
                                                     validation={{
-                                                        required: 'Cattle is required',
+                                                        required:
+                                                            'Cattle is required',
                                                     }}
                                                 />
                                             </div>
                                             <div className="mb-4">
-                                                <InputField
-                                                    type="text"
-                                                    label="Product Name"
-                                                    placeholder="Enter product name"
-                                                    registration={register('productName')}
-                                                    error={errors.productName?.message}
-                                                    name="productName"
-                                                />
+                                                <label
+                                                    htmlFor="gender"
+                                                    className="block text-sm font-bold text-gray-700"
+                                                >
+                                                    Product
+                                                </label>
+                                                <select
+                                                    id="gender"
+                                                    {...register('productName')}
+                                                    className="mt-1 block w-full px-3 py-2 border text-gray-400 border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                                                >
+                                                    <option value="">
+                                                        Select Product
+                                                    </option>
+                                                    <option value="MILK">
+                                                        Milk
+                                                    </option>
+                                                    <option value="MEAT">
+                                                        Meat
+                                                    </option>
+                                                </select>
+                                                {errors.productName && (
+                                                    <p className="text-sm text-red-600">
+                                                        Product is required
+                                                    </p>
+                                                )}
                                             </div>
                                             <div className="mb-4">
                                                 <InputField
                                                     type="number"
-                                                    label="Quantity"
+                                                    label="Quantity (kg) or (liters)"
                                                     placeholder="Enter quantity"
-                                                    registration={register('quantity')}
-                                                    error={errors.quantity?.message}
+                                                    registration={register(
+                                                        'quantity'
+                                                    )}
+                                                    error={
+                                                        errors.quantity?.message
+                                                    }
                                                     name="quantity"
                                                 />
                                             </div>
@@ -183,8 +219,13 @@ const UpdateProduction: React.FC<UpdateProductionModalProps> = ({
                                                     type="date"
                                                     label="Production Date"
                                                     placeholder="Enter production date"
-                                                    registration={register('productionDate')}
-                                                    error={errors.productionDate?.message}
+                                                    registration={register(
+                                                        'productionDate'
+                                                    )}
+                                                    error={
+                                                        errors.productionDate
+                                                            ?.message
+                                                    }
                                                     name="productionDate"
                                                 />
                                             </div>
@@ -193,8 +234,13 @@ const UpdateProduction: React.FC<UpdateProductionModalProps> = ({
                                                     type="date"
                                                     label="Expiration Date"
                                                     placeholder="Enter expiration date"
-                                                    registration={register('expirationDate')}
-                                                    error={errors.expirationDate?.message}
+                                                    registration={register(
+                                                        'expirationDate'
+                                                    )}
+                                                    error={
+                                                        errors.expirationDate
+                                                            ?.message
+                                                    }
                                                     name="expirationDate"
                                                 />
                                             </div>

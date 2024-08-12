@@ -14,9 +14,7 @@ const cattleSchema = z.object({
     DOB: z.string().nonempty('Date of birth is required'),
     weight: z.preprocess((val) => parseFloat(val as string), z.number().nonnegative('Weight is required')),
     location: z.string().nonempty('Location is required'),
-    farmId: z.string().nonempty('Farm ID is required'),
     lastCheckupDate: z.string().nonempty('Last checkup date is required'),
-    vaccineHistory: z.string().nonempty('Vaccine history is required'),
     purchaseDate: z.string().nonempty('Purchase date is required'),
     price: z.preprocess((val) => parseFloat(val as string), z.number().nonnegative('Price is required')),
 });
@@ -43,6 +41,7 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
         resolver: zodResolver(cattleSchema),
     });
 
+    const FarmId = localStorage.getItem('FarmId');
     useEffect(() => {
         if (cattle) {
             reset({
@@ -52,7 +51,7 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
                 DOB: cattle.DOB ? new Date(cattle.DOB).toISOString().split('T')[0] : '',
                 weight: cattle.weight || '',
                 location: cattle.location || '',
-                farmId: cattle.farmId || '',
+                farmId:FarmId,
                 lastCheckupDate: cattle.lastCheckupDate ? new Date(cattle.lastCheckupDate).toISOString().split('T')[0] : '',
                 vaccineHistory: cattle.vaccineHistory || '',
                 purchaseDate: cattle.purchaseDate ? new Date(cattle.purchaseDate).toISOString().split('T')[0] : '',
@@ -172,7 +171,6 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
                                                     </option>
                                                     <option value="Cow">Cow</option>
                                                     <option value="Bull">Bull</option>
-                                                    <option value="Other">Other</option>
                                                 </select>
                                                 {errors.gender && (
                                                     <p className="text-sm text-red-600">
@@ -220,48 +218,7 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
                                                     }
                                                 />
                                             </div>
-                                            <div className="mb-4">
-                                                <label
-                                                    htmlFor="farmId"
-                                                    className="block text-sm font-bold text-gray-700"
-                                                >
-                                                    Farm ID
-                                                </label>
-                                                <select
-                                                    id="farmId"
-                                                    {...register('farmId')}
-                                                    className="mt-1 block w-full px-3 py-2 border text-gray-400 border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
-                                                >
-                                                    <option value="">
-                                                        Select Farm
-                                                    </option>
-                                                    {farmsLoading ? (
-                                                        <option>
-                                                            Loading...
-                                                        </option>
-                                                    ) : (
-                                                        farms?.data?.map(
-                                                            (farm: any) => (
-                                                                <option
-                                                                    key={
-                                                                        farm.id
-                                                                    }
-                                                                    value={
-                                                                        farm.id
-                                                                    }
-                                                                >
-                                                                    {farm.name}
-                                                                </option>
-                                                            )
-                                                        )
-                                                    )}
-                                                </select>
-                                                {errors.farmId && (
-                                                    <p className="text-sm text-red-600">
-                                                        Farm is required
-                                                    </p>
-                                                )}
-                                            </div>
+                                          
                                             <div className="mb-4">
                                                 <InputField
                                                     type="date"
@@ -277,21 +234,7 @@ const UpdateCattleModal = ({ isOpen, onClose, cattle, handleRefetch }: any) => {
                                                     }
                                                 />
                                             </div>
-                                            <div className="mb-4">
-                                                <InputField
-                                                    type="text"
-                                                    registration={register(
-                                                        'vaccineHistory'
-                                                    )}
-                                                    label="Vaccine History"
-                                                    placeholder="Enter vaccine history"
-                                                    name="vaccineHistory"
-                                                    error={
-                                                        errors.vaccineHistory
-                                                            ?.message
-                                                    }
-                                                />
-                                            </div>
+                                           
                                             <div className="mb-4">
                                                 <InputField
                                                     type="date"

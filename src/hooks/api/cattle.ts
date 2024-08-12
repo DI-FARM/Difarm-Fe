@@ -7,12 +7,12 @@ export const useCattle = () => {
     const [cattle, setCattle] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
+    const farmId =localStorage.getItem('FarmId')
     const fetchCattle = async () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await api.get('/cattles');
+            const response = await api.get(`/cattles/${farmId}`);
             setCattle(response.data);
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'An error occurred while fetching cattle.';
@@ -27,7 +27,7 @@ export const useCattle = () => {
         setLoading(true);
         setError(null);
         try {
-            await api.post('/cattles', cattleData);
+            await api.post(`/cattles/${farmId}`, cattleData);
             toast.success('Cattle added successfully');
             fetchCattle();
         } catch (error: any) {

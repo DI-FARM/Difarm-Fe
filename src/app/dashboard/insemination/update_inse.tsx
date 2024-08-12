@@ -4,69 +4,68 @@ import { Fragment, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { InputField } from '@/components/input';
-import { ProductionData } from '@/core';
-import { useProduction } from '@/hooks/api/productions';
+import { useInseminationRecords } from '@/hooks/api/insemination';
 import AppSelect from '@/components/select/SelectField';
+import { useVeterinarians } from '@/hooks/api/vet';
 import { useCattle } from '@/hooks/api/cattle';
 
-const productionSchema = z.object({
+const inseminationSchema = z.object({
     cattleId: z.string().nonempty('Cattle ID is required'),
-    productName: z.string().nonempty('Product Name is required'),
-    quantity: z.string().min(1, 'Quantity must be at least 1'),
-    productionDate: z.string().nonempty('Production Date is required'),
-    expirationDate: z.string().nonempty('Expiration Date is required'),
+    method: z.string().nonempty('Method is required'),
+    type: z.string().nonempty('Type is required'),
+    vetId: z.string().nonempty('Vet ID is required'),
 });
 
-interface AddProductionModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    handleRefetch: () => void;
-}
-
-const AddProductionModal: React.FC<AddProductionModalProps> = ({
+const UpdateInseminationModal = ({
     isOpen,
     onClose,
+    insemination,
     handleRefetch,
-}) => {
-    const { createProduction, loading, error } = useProduction();
-    const {cattle,fetchCattle} :any= useCattle()
+}: any) => {
+    const { updateInseminationRecord, loading, error } =
+        useInseminationRecords();
+
     const {
         register,
         handleSubmit,
+        setValue,
         formState: { errors },
         reset,
-        setValue,
-    }: any = useForm({
-        resolver: zodResolver(productionSchema),
+    } = useForm({
+        resolver: zodResolver(inseminationSchema),
+        defaultValues: insemination,
     });
-    
+    const { cattle, fetchCattle }: any = useCattle();
+    const { veterinarians, getVeterinarians }: any = useVeterinarians();
+
     useEffect(() => {
-     fetchCattle()
-    }, [])
-    
-    console.log(cattle)
+        fetchCattle();
+        getVeterinarians();
+    }, []);
+    useEffect(() => {
+        reset(insemination);
+    }, [insemination, reset]);
 
-    const options =
-        cattle?.data?.cattles?.map(
-            (cattle: { breed: any; id: string; tagNumber: string }) => ({
-                value: cattle.id,
-                label: `${cattle.tagNumber}(${cattle.breed}) `,
-            })
-        ) || [];
-
-    const onSubmit = async (data: ProductionData) => {
+    const onSubmit = async (data: any) => {
         try {
-            const payload = {
-                ...data,
-                quantity: parseFloat(data.quantity),
-            };
-            await createProduction(payload);
+            await updateInseminationRecord(insemination.id, data);
             onClose();
             handleRefetch();
             reset();
         } catch (err) {}
     };
 
+    const cattleOptions = cattle?.data?.cattles?.map((item: any) => ({
+        value: item.id,
+        label: item.tagNumber,
+    }));
+
+    const vetOptions = veterinarians?.data?.veterinarians?.map((item: any) => ({
+        value: item.id,
+        label: `${item.name}`,
+    }));
+
+    console.log(insemination)
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" open={isOpen} onClose={onClose}>
@@ -95,7 +94,7 @@ const AddProductionModal: React.FC<AddProductionModalProps> = ({
                             <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-xl my-8 text-black dark:text-white-dark">
                                 <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
                                     <div className="font-bold text-lg">
-                                        Add Production
+                                        Update Insemination
                                     </div>
                                 </div>
                                 <div className="p-5">
@@ -107,92 +106,78 @@ const AddProductionModal: React.FC<AddProductionModalProps> = ({
                                     <form onSubmit={handleSubmit(onSubmit)}>
                                         <div className="grid grid-cols-2 gap-2">
                                             <div className="mb-4">
-                                                <AppSelect
-                                                    label="Cattle"
+                                            <AppSelect
+                                                    label="Cattle "
                                                     name="cattleId"
-                                                    placeholder="Select Cattle"
-                                                    options={options}
+                                                    placeholder="Select Cattle "
+                                                    options={cattleOptions}
                                                     error={
                                                         errors.cattleId?.message
                                                     }
+                                                    defaultValue={{
+                                                        label: `${insemination?.cattle?.tagNumber}(${insemination?.cattle?.breed}) `,
+                                                        value: insemination?.cattle?.id,
+                                                    }}
                                                     register={register}
                                                     setValue={setValue}
                                                     validation={{
                                                         required:
-                                                            'Cattle is required',
+                                                            'Cattle  is required',
                                                     }}
                                                 />
                                             </div>
-                                            <div className="mb-4">
-                                                <label
-                                                    htmlFor="gender"
-                                                    className="block text-sm font-bold text-gray-700"
-                                                >
-                                                    Product
-                                                </label>
-                                                <select
-                                                    id="gender"
-                                                    {...register('productName')}
-                                                    className="mt-1 block w-full px-3 py-2 border text-gray-400 border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
-                                                >
-                                                    <option value="">
-                                                        Select Product
-                                                    </option>
-                                                    <option value="MILK">
-                                                        Milk
-                                                    </option>
-                                                    <option value="MEAT">
-                                                        Meat
-                                                    </option>
-                                                </select>
-                                                {errors.productName && (
-                                                    <p className="text-sm text-red-600">
-                                                        Product is required
-                                                    </p>
-                                                )}
-                                            </div>
+
                                             <div className="mb-4">
                                                 <InputField
-                                                    type="number"
-                                                    label="Quantity(KG) or liters"
-                                                    placeholder="Enter quantity"
+                                                    type="text"
+                                                    label="Method"
+                                                    defaultValue={
+                                                        insemination?.method
+                                                    }
+                                                    placeholder="Enter method"
                                                     registration={register(
-                                                        'quantity'
+                                                        'method'
                                                     )}
                                                     error={
-                                                        errors.quantity?.message
+                                                        errors.method?.message
                                                     }
-                                                    name="quantity"
+                                                    name="method"
                                                 />
                                             </div>
                                             <div className="mb-4">
                                                 <InputField
-                                                    type="date"
-                                                    label="Production Date"
-                                                    placeholder="Enter production date"
-                                                    registration={register(
-                                                        'productionDate'
-                                                    )}
-                                                    error={
-                                                        errors.productionDate
-                                                            ?.message
+                                                    type="text"
+                                                    label="Type"
+                                                    defaultValue={
+                                                        insemination?.type
                                                     }
-                                                    name="productionDate"
+                                                    placeholder="Enter type"
+                                                    registration={register(
+                                                        'type'
+                                                    )}
+                                                    error={errors.type?.message}
+                                                    name="type"
                                                 />
                                             </div>
                                             <div className="mb-4">
-                                                <InputField
-                                                    type="date"
-                                                    label="Expiration Date"
-                                                    placeholder="Enter expiration date"
-                                                    registration={register(
-                                                        'expirationDate'
-                                                    )}
+                                                <AppSelect
+                                                    label="Veterinarian"
+                                                    name="vetId"
+                                                    placeholder="Select Veterinarian"
+                                                    options={vetOptions}
                                                     error={
-                                                        errors.expirationDate
-                                                            ?.message
+                                                        errors.vetId?.message
                                                     }
-                                                    name="expirationDate"
+                                                    defaultValue={{
+                                                        label: `${insemination?.vetId} `,
+                                                        value: insemination?.vetId,
+                                                    }}
+                                                    register={register}
+                                                    setValue={setValue}
+                                                    validation={{
+                                                        required:
+                                                            'Veterinarian ID is required',
+                                                    }}
                                                 />
                                             </div>
                                         </div>
@@ -223,4 +208,4 @@ const AddProductionModal: React.FC<AddProductionModalProps> = ({
     );
 };
 
-export default AddProductionModal;
+export default UpdateInseminationModal;

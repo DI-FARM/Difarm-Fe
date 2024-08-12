@@ -15,6 +15,7 @@ import ConfirmDeleteModal from './delete';
 
 interface ProductionRecord {
     id: string;
+    farm:any;
     cattleId: string;
     productName: string;
     quantity: number;
@@ -55,12 +56,18 @@ const Production = () => {
         {
             title: 'Cattle Tag',
             accessor: 'cattle.tagNumber',
-            render: row => <p>{row.cattle.tagNumber}</p>,
+            render: row => {
+                const cattle = row.farm.cattle.find((cattle: any) => cattle.id === row.cattleId);
+                return <p>{cattle?.tagNumber}</p>;
+            },
         },
         {
-            title: 'Cattle Breed ',
+            title: 'Cattle Breed',
             accessor: 'cattle.breed',
-            render: row => <p>{row.cattle.breed}</p>,
+            render: row => {
+                const cattle = row.farm.cattle.find((cattle: any) => cattle.id === row.cattleId);
+                return <p>{cattle?.breed}</p>;
+            },
         },
         {
             title: 'Product Name',
@@ -75,7 +82,7 @@ const Production = () => {
         {
             title: 'Production Date',
             accessor: 'productionDate',
-            render: row => <p> {formatDateToLongForm(row.productionDate)}</p>,
+            render: row => <p>{formatDateToLongForm(row.productionDate)}</p>,
         },
         {
             title: 'Expiration Date',
@@ -94,7 +101,7 @@ const Production = () => {
                         }}
                         className=""
                     >
-                        <IconEdit className='text-primary' />
+                        <IconEdit className="text-primary" />
                     </button>
                     <button
                         onClick={() => {
@@ -103,13 +110,14 @@ const Production = () => {
                         }}
                         className=""
                     >
-                        <IconTrash className='text-danger' />
+                        <IconTrash className="text-danger" />
                     </button>
                 </div>
             ),
         },
     ];
-
+    
+    
     return (
         <div className="">
             <ol className="flex text-gray-500 font-semibold dark:text-white-dark">
@@ -140,14 +148,14 @@ const Production = () => {
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
                 handleRefetch={handleRefetch}
-                cattle={cattle}
+             
             />
             <UpdateProduction
                 isOpen={isUpdateModalOpen}
                 onClose={() => setIsUpdateModalOpen(false)}
                 production={selectedProduction}
                 handleRefetch={handleRefetch}
-                cattle={cattle}
+                
             />
             <ConfirmDeleteModal
                 isOpen={isDeleteModalOpen}
