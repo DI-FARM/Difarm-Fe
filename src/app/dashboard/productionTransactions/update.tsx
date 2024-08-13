@@ -6,10 +6,12 @@ import { useForm } from 'react-hook-form';
 import { InputField } from '@/components/input';
 import AppSelect from '@/components/select/SelectField';
 import { useProductionTransaction } from '@/hooks/api/production_transaction';
+import { transitions } from '@mantine/core/lib/Transition/transitions';
 
 const productionTransactionSchema = z.object({
     quantity: z.number().min(1, 'Quantity must be at least 1'),
-    productName: z.string().nonempty('Product is required'),
+    productType: z.string().nonempty('Product is required'),
+    consumer: z.string().nonempty('Consumer is required'),
 });
 
 interface UpdateProductionTransactionModalProps {
@@ -22,7 +24,7 @@ interface UpdateProductionTransactionModalProps {
 const UpdateProductionTransactionModal: React.FC<
     UpdateProductionTransactionModalProps
 > = ({ isOpen, onClose, transaction, handleRefetch }) => {
-    const { updateProductionTransaction, loading, error, getProductionTransactions,production_transactions} = useProductionTransaction();
+    const { updateProductionTransaction, loading, error} = useProductionTransaction();
 
     const {
         register,
@@ -50,11 +52,6 @@ const UpdateProductionTransactionModal: React.FC<
     };
 
    
-
-    const options = transaction?.data?.map((production: any) => ({
-        value: production.id,
-        label: production.name,
-    }));
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
@@ -92,22 +89,6 @@ const UpdateProductionTransactionModal: React.FC<
                                     onSubmit={handleSubmit(onSubmit)}
                                     className="mt-4"
                                 >
-                                    <AppSelect
-                                        label="Production ID"
-                                        name="productionId"
-                                        placeholder="Select Production ID"
-                                        options={options}
-                                        defaultValue={{
-                                            label: transaction?.production?.name,
-                                            value: transaction?.productionId,
-                                        }}
-                                        error={errors.productionId?.message}
-                                        register={register}
-                                        setValue={setValue}
-                                        validation={{
-                                            required: 'Production ID is required',
-                                        }}
-                                    />
                                     <InputField
                                         label="Quantity"
                                         placeholder="Enter quantity"
@@ -121,22 +102,32 @@ const UpdateProductionTransactionModal: React.FC<
                                     />
                                     <AppSelect
                                         label="Type"
-                                        name="type"
-                                        placeholder="Select Type"
+                                        name="productType"
+                                        placeholder="Product Type"
                                         options={[
-                                            { value: 'PRODUCTION', label: 'Produced' },
-                                            { value: 'CONSUMPTION', label: 'Consumed' },
+                                            { value: 'MILK', label: 'Milk' },
+                                            { value: 'MEAT', label: 'Meat' },
                                         ]}
                                         defaultValue={{
-                                            label: transaction?.type,
-                                            value: transaction?.type,
+                                            label: transaction?.productType,
+                                            value: transaction?.productType,
                                         }}
-                                        error={errors.type?.message}
+                                        error={errors.productType?.message}
                                         register={register}
+                                        
                                         setValue={setValue}
                                         validation={{
                                             required: 'Type is required',
                                         }}
+                                    />
+                                      <InputField
+                                        label="Consumer"
+                                        placeholder="Enter consumer name"
+                                        type="text"
+                                        defaultValue={transaction?.consumer}
+                                        error={errors.consumer?.message}
+                                        registration={register('consumer')}
+                                        name={'consumer'}
                                     />
                                     <div className="mt-4 flex justify-end space-x-2">
                                         <button

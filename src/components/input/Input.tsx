@@ -37,7 +37,7 @@ export const InputField: React.FC<InputFieldProps> = ({
     };
 
     return (
-        <div className={` ${className}`}>
+        <div className={` ${className} my-2`}>
             <label className="block text-sm font-bold  ">
                 {label}
             </label>
@@ -51,7 +51,7 @@ export const InputField: React.FC<InputFieldProps> = ({
                     onChange={onChange}
                     {...registration}
                     required={required}
-                    className={`mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm pr-10 `}
+                    className={` block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm pr-10 `}
                     autoFocus={focus}
                 />
                 {type === 'password' && (
@@ -66,7 +66,7 @@ export const InputField: React.FC<InputFieldProps> = ({
                     </div>
                 )}
             </div>
-            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+            {error && <p className="text-red-500 text-sm ">{error}</p>}
         </div>
     );
 };

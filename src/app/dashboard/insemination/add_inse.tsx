@@ -136,9 +136,9 @@ const farmId = localStorage.getItem('FarmId');
                                         registration={register('type')}
                                     />
                                     <AppSelect
-                                        label="Veterinarian ID"
+                                        label="Veterinarian "
                                         name="vetId"
-                                        placeholder="Select Veterinarian ID"
+                                        placeholder="Select Veterinarian "
                                         options={vetOptions}
                                         error={errors.vetId?.message}
                                         register={register}

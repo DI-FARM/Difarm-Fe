@@ -52,7 +52,7 @@ const FarmId =  localStorage.getItem('FarmId')
         setLoading(true);
         setError(null);
         try {
-            const response = await api.put(`/production-transaction/${id}`, data);
+            const response = await api.patch(`/production-transaction/${id}`, data);
             toast.success('Production transaction updated successfully');
             return response.data;
         } catch (error: any) {
