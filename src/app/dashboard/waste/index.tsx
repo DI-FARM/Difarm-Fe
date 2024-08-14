@@ -1,79 +1,74 @@
-import { useState } from 'react';
-import DataTableV2, { TableColumnV2 } from '@/components/datatable';
-import formatDateToLongForm from '@/utils/DateFormattter';
-import { capitalize } from 'lodash';
-import IconPlus from '@/components/Icon/IconPlus';
-import IconEdit from '@/components/Icon/IconEdit';
-import IconTrash from '@/components/Icon/IconTrash';
-import { toast } from 'react-hot-toast';
-import { useUsers } from '@/hooks/api/auth';
-import AddUserModal from './add_user';
-import UpdateUserModal from './update_user';
-import ConfirmDeleteModal from './delete';
+import DataTableV2, { TableColumnV2 } from "@/components/datatable";
+import IconEdit from "@/components/Icon/IconEdit";
+import IconPlus from "@/components/Icon/IconPlus";
+import IconTrash from "@/components/Icon/IconTrash";
+import { useWasteLog } from "@/hooks/api/waste";
+import formatDateToLongForm from "@/utils/DateFormattter";
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+import AddWasteLogModal from "./add";
+import UpdateWasteLogModal from "./update";
+import ConfirmDeleteModal from "./delete";
 
+interface WasteLogRecord {
+    id: string;
+    type: string;
+    quantity: number;
+    date: string;
+}
 
-const Users = () => {
-    const { users, loading, refetch, deleteUser }:any = useUsers();
+const WasteLogManagement = () => {
+    const { createWasteLog, updateWasteLog, deleteWasteLog, loading, error, getWasteLogs, wasteLogs }:any = useWasteLog();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<any>({});
+    const [selectedWasteLog, setSelectedWasteLog] = useState<WasteLogRecord | null>(null);
+
+    const handleRefresh = () => {
+        getWasteLogs();
+    };
 
     const handleDelete = async () => {
-        try {
-            await deleteUser(selectedUser?.id);
-            toast.success('User deleted successfully');
-            refetch();
-        } catch (error) {
-            toast.error('Failed to delete user');
-        } finally {
-            setIsDeleteModalOpen(false);
+        if (selectedWasteLog) {
+            try {
+                await deleteWasteLog(selectedWasteLog.id);
+                getWasteLogs();
+            } catch (error) {
+                toast.error('Failed to delete waste log');
+            } finally {
+                setIsDeleteModalOpen(false);
+            }
         }
     };
 
-    const handleRefetch = () => {
-        refetch();
-    };
+    useEffect(() => {
+        getWasteLogs();
+    }, []);
 
-    const columns: TableColumnV2<any>[] = [
+    const columns: TableColumnV2<WasteLogRecord>[] = [
         {
-            title: 'Full Name',
-            accessor: 'fullName',
-            render: row => <p>{row?.fullname}</p>,
+            title: 'Type',
+            accessor: 'type',
+            render: row => <p>{row?.type}</p>,
         },
         {
-            title: 'Username',
-            accessor: 'username',
-            render: row => <p>{row?.account?.username}</p>,
+            title: 'Quantity (kg or liters)',
+            accessor: 'quantity',
+            render: row => <p>{row?.quantity}</p>,
         },
         {
-            title: 'Email',
-            accessor: 'email',
-            render: row => <p>{row?.account?.email}</p>,
-        },
-        {
-            title: 'Gender',
-            accessor: 'gender',
-            render: row => <p>{capitalize(row?.gender)}</p>,
-        },
-        {
-            title: 'Phone',
-            accessor: 'phone',
-            render: row => <p>{row?.account?.phone}</p>,
-        },
-        {
-            title: 'Role',
-            accessor: 'role',
-            render: row => <p>{row?.account?.role}</p>,
+            title: 'Date',
+            accessor: 'date',
+            render: row => <p>{formatDateToLongForm(row?.date)}</p>,
         },
         {
             title: 'Actions',
             accessor: 'actions',
             render: row => (
-                <div className="flex gap-2 justify-center">
+                <div className="flex gap-2 justify-start">
                     <button
                         onClick={() => {
-                            setSelectedUser(row);
+                            setSelectedWasteLog(row);
                             setIsUpdateModalOpen(true);
                         }}
                         className=""
@@ -82,7 +77,7 @@ const Users = () => {
                     </button>
                     <button
                         onClick={() => {
-                            setSelectedUser(row);
+                            setSelectedWasteLog(row);
                             setIsDeleteModalOpen(true);
                         }}
                         className=""
@@ -104,7 +99,7 @@ const Users = () => {
                 </li>
                 <li className="before:content-['/'] before:px-1.5">
                     <button className="text-black dark:text-white-light hover:text-black/70 dark:hover:text-white-light/70">
-                        Users
+                        Waste Logs
                     </button>
                 </li>
             </ol>
@@ -116,20 +111,20 @@ const Users = () => {
                     className="btn btn-primary flex items-center gap-1"
                 >
                     <IconPlus />
-                    Add User
+                    Add Waste Log
                 </button>
             </div>
 
-            <AddUserModal
+            <AddWasteLogModal
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
-                handleRefetch={handleRefetch}
+                handleRefetch={handleRefresh}
             />
-            <UpdateUserModal
+            <UpdateWasteLogModal
                 isOpen={isUpdateModalOpen}
                 onClose={() => setIsUpdateModalOpen(false)}
-                user={selectedUser}
-                handleRefetch={handleRefetch}
+                wasteLog={selectedWasteLog}
+                handleRefetch={handleRefresh}
             />
             <ConfirmDeleteModal
                 isOpen={isDeleteModalOpen}
@@ -143,15 +138,15 @@ const Users = () => {
                     previousPage={0}
                     nextPage={0}
                     currentPage={1}
-                    data={users?.data ?? []}
-                    total={users?.data?.length ?? 0}
+                    data={wasteLogs?.data ?? []}
+                    total={wasteLogs?.data?.length ?? 0}
                     lastPage={1}
                     isLoading={loading}
-                    tableName={'Users'}
+                    tableName={'Waste Logs'}
                 />
             </div>
         </div>
     );
 };
 
-export default Users;
+export default WasteLogManagement;

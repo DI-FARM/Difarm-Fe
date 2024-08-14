@@ -1,37 +1,40 @@
 import PerfectScrollbar from 'react-perfect-scrollbar';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation } from 'react-router-dom';
+import { isLoggedIn } from "@/hooks/api/auth";
+import { IRootState } from "@/store";
+import { toggleSidebar } from "@/store/themeConfigSlice";
+import { Cog6ToothIcon } from "@heroicons/react/24/outline";
+import { useState, useEffect } from "react";
+import { FaAnchor, FaSwatchbook } from "react-icons/fa";
+import { useSelector, useDispatch } from "react-redux";
+import { useLocation, Link } from "react-router-dom";
+import IconBolt from "../Icon/IconBolt";
+import IconCaretsDown from "../Icon/IconCaretsDown";
+import IconHelpCircle from "../Icon/IconHelpCircle";
+import IconHome from "../Icon/IconHome";
+import IconShoppingBag from "../Icon/IconShoppingBag";
+import IconTrashLines from "../Icon/IconTrashLines";
+import IconUsers from "../Icon/IconUsers";
+import IconUsersGroup from "../Icon/IconUsersGroup";
+
 import AnimateHeight from 'react-animate-height';
-import { useState, useEffect } from 'react';
-import { Cog6ToothIcon } from '@heroicons/react/24/outline';
-import { FaAnchor, FaSwatchbook } from 'react-icons/fa';
-import { IRootState } from '@/store';
-import { toggleSidebar } from '@/store/themeConfigSlice';
-import IconCaretsDown from '@/components/Icon/IconCaretsDown';
-import IconCaretDown from '@/components/Icon/IconCaretDown';
-import IconUsers from '../Icon/IconUsers';
-import IconHome from '../Icon/IconHome';
-import IconHelpCircle from '../Icon/IconHelpCircle';
-import { isLoggedIn } from '@/hooks/api/auth';
-import IconShoppingBag from '../Icon/IconShoppingBag';
-import IconUsersGroup from '../Icon/IconUsersGroup';
-import { IconBase } from 'react-icons/lib';
-import IconBolt from '../Icon/IconBolt';
-import IconSquareRotated from '../Icon/IconSquareRotated';
+import IconCaretDown from '../Icon/IconCaretDown';
 
 const Sidebar = () => {
     const [currentMenu, setCurrentMenu] = useState<string>('');
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
-    const semidark = useSelector((state: IRootState) => state.themeConfig.semidark);
     const location = useLocation();
     const dispatch = useDispatch();
     const user = isLoggedIn();
 
     const toggleMenu = (value: string) => {
-        setCurrentMenu(oldValue => {
-            return oldValue === value ? '' : value;
-        });
+        setCurrentMenu(oldValue => (oldValue === value ? '' : value));
     };
+
+    useEffect(() => {
+        if (window.innerWidth < 1024 && themeConfig.sidebar) {
+            dispatch(toggleSidebar());
+        }
+    }, [location, themeConfig.sidebar, dispatch]);
 
     const navigation = [
         {
@@ -64,23 +67,33 @@ const Sidebar = () => {
         },
         {
             name: 'Production',
-            to: '/account/production',
+            to: '',
             icon: FaSwatchbook,
-            current: location.pathname === '/account/production',
+            current: location.pathname.startsWith('/account/production'),
             roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
+            children: [
+                {
+                    name: 'Production Overview',
+                    to: '/account/production',
+                    current: location.pathname === '/account/production',
+                },
+                {
+                    name: 'Production Totals',
+                    to: '/account/production_totals',
+                    current: location.pathname === '/account/production_totals',
+                },
+                {
+                    name: 'Production Transactions',
+                    to: '/account/production_transactions',
+                    current: location.pathname === '/account/production_transactions',
+                },
+            ],
         },
         {
-            name: 'Production Totals',
-            to: '/account/production_totals',
-            icon: IconShoppingBag,
-            current: location.pathname === '/account/production_totals',
-            roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
-        },
-        {
-            name: 'Production Transactions',
-            to: '/account/production_transactions',
-            icon: IconSquareRotated,
-            current: location.pathname === '/account/production_transactions',
+            name: 'Waste Production',
+            to: '/account/waste-logs',
+            icon: IconTrashLines,
+            current: location.pathname === '/account/waste-logs',
             roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
         },
         {
@@ -104,7 +117,6 @@ const Sidebar = () => {
             current: location.pathname === '/account/vaccine',
             roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
         },
-        
         {
             name: 'Veterinarian',
             to: '/account/veterinarian',
@@ -120,12 +132,6 @@ const Sidebar = () => {
             roles: ['SUPERADMIN', 'ADMIN', 'MANAGER'],
         },
     ];
-
-    useEffect(() => {
-        if (window.innerWidth < 1024 && themeConfig.sidebar) {
-            dispatch(toggleSidebar());
-        }
-    }, [location]);
 
     return (
         <div className={'dark'}>
@@ -157,19 +163,31 @@ const Sidebar = () => {
                                         .filter(item => item.roles.includes(user.role))
                                         .map((item, index) => (
                                             <li key={index} className="nav-item">
-                                                <Link to={item.to} className={`group ${item.current ? 'active text-white' : ' '}`}>
-                                                    <div className="flex items-center">
-                                                        <item.icon className="group-hover:!text-white shrink-0" />
-                                                        <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-white/80 dark:group-hover:text-white">
-                                                            {item.name}
-                                                        </span>
-                                                    </div>
-                                                </Link>
+                                                {!item.children ? (
+                                                    <Link to={item.to} className={`group ${item.current ? 'active text-white' : ''}`}>
+                                                        <div className="flex items-center">
+                                                            <item.icon className="group-hover:!text-white shrink-0" />
+                                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-white/80 dark:group-hover:text-white">
+                                                                {item.name}
+                                                            </span>
+                                                        </div>
+                                                    </Link>
+                                                ) : (
+                                                    <ItemDropDown
+                                                        currentMenu={currentMenu}
+                                                        toggleMenu={toggleMenu}
+                                                        item={{
+                                                            name: item.name,
+                                                            items: item.children,
+                                                            Icon: item.icon,
+                                                        }}
+                                                    />
+                                                )}
                                             </li>
                                         ))}
 
                                     <li className="nav-item">
-                                        <Link to="/account/profile" className={`group ${location.pathname === '/account/profile' ? 'active text-white' : ' '}`}>
+                                        <Link to="/account/profile" className={`group ${location.pathname === '/account/profile' ? 'active text-white' : ''}`}>
                                             <div className="flex items-center">
                                                 <Cog6ToothIcon className="group-hover:!text-white shrink-0" />
                                                 <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-white/80 dark:group-hover:text-white">
@@ -194,49 +212,43 @@ type DropDownProps = {
     items: {
         name: string;
         to: string;
+        current: boolean;
     }[];
     name: string;
-    Icon: React.ForwardRefExoticComponent<
-        Omit<React.SVGProps<SVGSVGElement>, 'ref'> & {
-            title?: string | undefined;
-            titleId?: string | undefined;
-        } & React.RefAttributes<SVGSVGElement>
-    >;
+    Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 };
 
-function ItemDropDown(
-    currentMenu: string,
-    toggleMenu: (value: string) => void,
-    item: DropDownProps
-) {
+type ItemDropDownProps = {
+    currentMenu: string;
+    toggleMenu: (value: string) => void;
+    item: DropDownProps;
+};
+
+const ItemDropDown: React.FC<ItemDropDownProps> = ({ currentMenu, toggleMenu, item }) => {
     return (
         <li className="menu nav-item">
-            <button
-                type="button"
-                className={`${currentMenu === item.name ? '' : ''} nav-link group w-full`}
-                onClick={() => toggleMenu(item.name)}
-            >
+            <button type="button" className={`nav-link group w-full ${currentMenu === item.name ? '' : ''}`} onClick={() => toggleMenu(item.name)}>
                 <div className="flex items-center">
                     <item.Icon className="group-hover:!text-white shrink-0" />
-                    <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-white/80 dark:group-hover:text-white">
-                        {item.name}
-                    </span>
+                    <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-white/80 dark:group-hover:text-white">{item.name}</span>
                 </div>
-
                 <div className={currentMenu !== item.name ? 'rtl:rotate-90 -rotate-90' : ''}>
-                    <IconCaretDown />
+                    <IconCaretDown className="text-white" />
                 </div>
             </button>
 
             <AnimateHeight duration={300} height={currentMenu === item.name ? 'auto' : 0}>
-                <ul className="sub-menu text-white/80">
-                    {item.items.map((item, index) => (
-                        <li key={index}>
-                            <Link to={item.to}>{item.name}</Link>
+                <ul className=" px-2 ml-3">
+                    {item.items.map((subItem, index) => (
+                        <li key={index} className={`flex items-center ${subItem.current ? 'font-bold ' : ''}`}>
+                            <Link to={subItem.to} className={`!px-4 text-gray-300 block p-2  ${subItem.current ? 'text-white' : ''}`}>
+                                {subItem.name}
+                            </Link>
                         </li>
                     ))}
                 </ul>
             </AnimateHeight>
         </li>
     );
-}
+};
+

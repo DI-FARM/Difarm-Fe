@@ -58,9 +58,14 @@ const InseminationRecords = () => {
             render: row => <p>{row?.type}</p>,
         },
         {
-            title: 'Veterinarian ID',
-            accessor: 'vetId',
-            render: row => <p>{row?.vetId}</p>,
+            title: 'Veterinarian ',
+            accessor: 'vet.name',
+            render: row => <p>{row?.veterinarian?.name}</p>,
+        },
+        {
+            title: 'Veterinarian Email',
+            accessor: 'vet.email',
+            render: row => <p>{row?.veterinarian?.email}</p>,
         },
         {
             title: 'Actions',

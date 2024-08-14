@@ -18,6 +18,7 @@ import InseminationRecords from '@/app/dashboard/insemination';
 import ChooseFarm from '@/app/choosefarm';
 import ProductionTransactions from '@/app/dashboard/productionTransactions';
 import ProductionTotals from '@/app/dashboard/productionTotals';
+import WasteLogManagement from '@/app/dashboard/waste';
 
 export default function AppRoutes() {
     return (
@@ -38,6 +39,7 @@ export default function AppRoutes() {
                 <Route path='users' element={<Users />} />
                 <Route path='production' element={<Production />} />
                 <Route path='stock' element={<StockManagement />} />
+                <Route path='waste-logs' element={<WasteLogManagement />} />
                 <Route path='production_totals' element={<ProductionTotals />} />
                 <Route path='production_transactions' element={<ProductionTransactions />} />
                 <Route path='stock_transactions' element={<StockTransactionManagement />} />

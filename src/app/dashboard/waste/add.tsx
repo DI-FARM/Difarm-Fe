@@ -1,75 +1,56 @@
 import { z } from 'zod';
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { InputField } from '@/components/input';
-import AppSelect from '@/components/select/SelectField';
-import { useCattle } from '@/hooks/api/cattle';
-import { useVeterinarians } from '@/hooks/api/vet';
-import { useVaccineRecords } from '@/hooks/api/vaccinr';
+import { useWasteLog } from '@/hooks/api/waste';
 
-
-const vaccineRecordSchema = z.object({
-    cattleId: z.string().nonempty('Cattle ID is required'),
+const wasteLogSchema = z.object({
+    type: z.string().nonempty('Type is required'),
+    quantity: z.string().min(1, 'Quantity must be at least 1'),
     date: z.string().nonempty('Date is required'),
-    vaccineType: z.string().nonempty('Vaccine type is required'),
-    vetId: z.string().nonempty('Veterinarian ID is required'),
 });
 
-interface AddVaccineRecordModalProps {
+interface AddWasteLogModalProps {
     isOpen: boolean;
     onClose: () => void;
     handleRefetch: () => void;
 }
 
-const AddVaccineRecordModal: React.FC<AddVaccineRecordModalProps> = ({
+const AddWasteLogModal: React.FC<AddWasteLogModalProps> = ({
     isOpen,
     onClose,
     handleRefetch,
 }) => {
-    const { createVaccineRecord, loading, error } = useVaccineRecords();
-    const { cattle, fetchCattle }: any = useCattle();
-    const { veterinarians, getVeterinarians }: any = useVeterinarians();
-    
+    const { createWasteLog, loading, error } = useWasteLog();
+
     const {
         register,
         handleSubmit,
         formState: { errors },
         reset,
-        setValue,
     } = useForm({
-        resolver: zodResolver(vaccineRecordSchema),
+        resolver: zodResolver(wasteLogSchema),
     });
 
     useEffect(() => {
-        fetchCattle();
-        getVeterinarians();
-    }, []);
-
-    const cattleOptions = cattle?.data?.cattles?.map((item: any) => ({
-        value: item.id,
-        label: item.tagNumber,
-    }));
-
-    const vetOptions = veterinarians?.data?.veterinarians.map((item: any) => ({
-        value: item.id,
-        label: `${item.name}`,
-    }));
+        if (!isOpen) {
+            reset();
+        }
+    }, [isOpen, reset]);
 
     const onSubmit = async (data: any) => {
         try {
-            const farmId =localStorage.getItem('FarmId');
-            const payload={
-                ...data,
-                farmId:farmId
-            }
-            await createVaccineRecord(payload);
+            const payload: any = {
+                type: data.type,
+                quantity: parseFloat(data.quantity),
+                date: new Date(data.date),
+            };
+            await createWasteLog(payload);
             onClose();
             handleRefetch();
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (err) {}
     };
 
     return (
@@ -97,56 +78,61 @@ const AddVaccineRecordModal: React.FC<AddVaccineRecordModalProps> = ({
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="w-full max-w-md p-6 overflow-hidden text-left mt-4 align-middle transition-all transform bg-white shadow-xl rounded">
+                            <Dialog.Panel className="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded mt-4">
                                 <Dialog.Title
                                     as="h3"
                                     className="text-lg font-medium leading-6 text-gray-900"
                                 >
-                                    Add Vaccine Record
+                                    Add Waste Log
                                 </Dialog.Title>
                                 <form
                                     onSubmit={handleSubmit(onSubmit)}
-                                    className="mt-4 grid gap-4"
+                                    className="mt-4"
                                 >
-                                    <AppSelect
-                                        label="Cattle ID"
-                                        name="cattleId"
-                                        placeholder="Select Cattle ID"
-                                        options={cattleOptions}
-                                        error={errors.cattleId?.message}
-                                        register={register}
-                                        setValue={setValue}
-                                        validation={{
-                                            required: 'Cattle ID is required',
-                                        }}
+                                   <div className="">
+                                        <label
+                                            htmlFor="type"
+                                            className="block text-sm font-bold text-gray-700"
+                                        >
+                                            Type
+                                        </label>
+                                        <select
+                                            id="type"
+                                            {...register('type')}
+                                            className="mt-1 block w-full px-3 py-2 border text-gray-400 border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                                        >
+                                            <option value="">
+                                                Select Type
+                                            </option>
+
+                                            <option value="DUNG">Dung</option>
+                                            <option value="LIQUIDMANURE">
+                                                Liquid Manure
+                                            </option>
+                                           
+                                           
+                                        </select>
+                                        {errors.type && (
+                                            <p className="text-sm text-red-600">
+                                                Type is required
+                                            </p>
+                                        )}
+                                    </div>
+                                    <InputField
+                                        label="Quantity(KG or Litres)"
+                                        placeholder="Enter quantity"
+                                        name="quantity"
+                                        type="number"
+                                        error={errors.quantity?.message}
+                                        registration={register('quantity')}
                                     />
                                     <InputField
                                         label="Date"
+                                        placeholder="Enter date"
                                         name="date"
-                                        placeholder="Enter Date"
                                         type="date"
                                         error={errors.date?.message}
                                         registration={register('date')}
-                                    />
-                                    <InputField
-                                        label="Vaccine Type"
-                                        name="vaccineType"
-                                        placeholder="Enter Vaccine Type"
-                                        type="text"
-                                        error={errors.vaccineType?.message}
-                                        registration={register('vaccineType')}
-                                    />
-                                    <AppSelect
-                                        label="Veterinarian"
-                                        name="vetId"
-                                        placeholder="Select Veterinarian"
-                                        options={vetOptions}
-                                        error={errors.vetId?.message}
-                                        register={register}
-                                        setValue={setValue}
-                                        validation={{
-                                            required: 'Veterinarian is required',
-                                        }}
                                     />
                                     <div className="mt-4 flex justify-end space-x-2">
                                         <button
@@ -174,4 +160,4 @@ const AddVaccineRecordModal: React.FC<AddVaccineRecordModalProps> = ({
     );
 };
 
-export default AddVaccineRecordModal;
+export default AddWasteLogModal;

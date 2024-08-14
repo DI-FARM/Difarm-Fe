@@ -169,14 +169,14 @@ const UpdateInseminationModal = ({
                                                         errors.vetId?.message
                                                     }
                                                     defaultValue={{
-                                                        label: `${insemination?.vetId} `,
-                                                        value: insemination?.vetId,
+                                                        label: `${insemination?.veterinarian?.name} `,
+                                                        value: insemination?.veterinarian?.id,
                                                     }}
                                                     register={register}
                                                     setValue={setValue}
                                                     validation={{
                                                         required:
-                                                            'Veterinarian ID is required',
+                                                            'Veterinarian  is required',
                                                     }}
                                                 />
                                             </div>

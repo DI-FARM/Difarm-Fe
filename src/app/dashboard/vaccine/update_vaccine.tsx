@@ -152,14 +152,14 @@ const UpdateVaccineModal = ({
                                                         errors.vetId?.message
                                                     }
                                                     defaultValue={{
-                                                        label: `${vaccine?.vetId} `,
-                                                        value: vaccine?.vetId,
+                                                        label: `${vaccine?.veterinarian?.name} `,
+                                                        value: vaccine?.veterinarian?.id,
                                                     }}
                                                     register={register}
                                                     setValue={setValue}
                                                     validation={{
                                                         required:
-                                                            'Veterinarian ID is required',
+                                                            'Veterinarian  is required',
                                                     }}
                                                 />
                                             </div>

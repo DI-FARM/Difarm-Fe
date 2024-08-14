@@ -144,7 +144,7 @@ const farmId = localStorage.getItem('FarmId');
                                         register={register}
                                         setValue={setValue}
                                         validation={{
-                                            required: 'Veterinarian ID is required',
+                                            required: 'Veterinarian  is required',
                                         }}
                                     />
                                       <InputField

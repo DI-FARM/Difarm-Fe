@@ -38,7 +38,7 @@ const ProductionTotals = () => {
             render: row => <p>{row.productType}</p>,
         },
         {
-            title: 'Quantity',
+            title: 'Quantity (kg or Litres)',
             accessor: 'totalQuantity',
             render: row => <p>{row.totalQuantity}</p>,
         },
@@ -68,6 +68,18 @@ const ProductionTotals = () => {
 
     return (
         <div className="">
+               <ol className="flex text-gray-500 font-semibold dark:text-white-dark">
+                <li>
+                    <button className="hover:text-gray-500/70 dark:hover:text-white-dark/70">
+                        Home
+                    </button>
+                </li>
+                <li className="before:content-['/'] before:px-1.5">
+                    <button className="text-black dark:text-white-light hover:text-black/70 dark:hover:text-white-light/70">
+                        Production
+                    </button>
+                </li>
+            </ol>
             <div className="flex flex-row justify-end gap-2 mb-2">
                 <button
                     type="button"

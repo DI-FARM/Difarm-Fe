@@ -103,11 +103,11 @@ export const useUsers = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
+    const farmId = localStorage.getItem('FarmId');
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const response = await api.get('/auth/users');
+            const response = await api.get(`/auth/users/`);
             setUsers(response.data);
        
         } catch (error:any) {
