@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import DataTableV2, { TableColumnV2 } from '@/components/datatable';
 import { capitalize } from 'lodash';
 import IconPlus from '@/components/Icon/IconPlus';
-import IconEdit from '@/components/Icon/IconEdit';
-import IconTrash from '@/components/Icon/IconTrash';
+import IconEdit from '@/components/Icon/IconEdit'
 import { toast } from 'react-hot-toast';
 import AddProductionModal from './create_prod';
 import UpdateProduction from './update_prod';
@@ -11,6 +10,7 @@ import { useCattle } from '@/hooks/api/cattle';
 import { useProduction } from '@/hooks/api/productions';
 import formatDateToLongForm from '@/utils/DateFormattter';
 import ConfirmDeleteModal from './delete';
+import { TrashIcon } from '@heroicons/react/24/outline';
 
 
 interface ProductionRecord {
@@ -56,18 +56,12 @@ const Production = () => {
         {
             title: 'Cattle Tag',
             accessor: 'cattle.tagNumber',
-            render: row => {
-                const cattle = row.farm.cattle.find((cattle: any) => cattle.id === row.cattleId);
-                return <p>{cattle?.tagNumber}</p>;
-            },
+            render: row => <p>{row?.cattle?.tagNumber}</p>,
         },
         {
             title: 'Cattle Breed',
             accessor: 'cattle.breed',
-            render: row => {
-                const cattle = row.farm.cattle.find((cattle: any) => cattle.id === row.cattleId);
-                return <p>{cattle?.breed}</p>;
-            },
+            render: row =><p> {row.cattle.breed}</p>
         },
         {
             title: 'Product Name',
@@ -110,7 +104,7 @@ const Production = () => {
                         }}
                         className=""
                     >
-                        <IconTrash className="text-danger" />
+                        <TrashIcon className="text-danger" />
                     </button>
                 </div>
             ),

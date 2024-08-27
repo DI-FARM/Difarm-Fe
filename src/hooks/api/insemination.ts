@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { api } from '.';
-import InseminationRecords from '@/app/dashboard/insemination';
 
 export const useInseminationRecords = () => {
     const [loading, setLoading] = useState(false);

@@ -139,7 +139,6 @@ const AddFarmModal = ({ isOpen, onClose ,handleRefetch}: any) => {
                                             <select
                                                 id="ownerId"
                                                 {...register('ownerId')}
-                                                placeholder='Owner'
                                                 className="mt-1 block w-full px-3 py-2 border text-gray-400  border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm pr-10"
                                                   
                                                 

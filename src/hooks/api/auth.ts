@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 export const baseURL = process.env.REACT_APP_SERVER_URL;
 
+
 export const useLogin = () => {
     const [loadingLogin, setLoadingLogin] = useState(false);
     const [loginSuccess, setLoginSuccess] = useState(false);
@@ -46,8 +47,7 @@ export const useLogin = () => {
 };
 
 export const isLoggedIn = () => {
-    const navigate = useNavigate();
-
+ 
     const token = storage.getToken();
     if (token) {
         const decodedToken: any = jwt_decode(token);
@@ -56,7 +56,7 @@ export const isLoggedIn = () => {
         if (decodedToken.exp < currentTime) {
             storage.removeToken();
             localStorage.removeItem('Farm_user');
-            navigate('/login');
+            window.location.href = '/login';
             return false;
         }
 
@@ -107,7 +107,7 @@ export const useUsers = () => {
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const response = await api.get(`/auth/users/`);
+            const response = await api.get(`/users/${farmId}`);
             setUsers(response.data);
        
         } catch (error:any) {

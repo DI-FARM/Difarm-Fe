@@ -3,7 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ErrorBoundary } from 'react-error-boundary';
 import { HelmetProvider } from 'react-helmet-async';
 import { ToastContainer } from 'react-toastify';
-import Error500 from '@/app/errors/500Error';
+import Error500 from '@/errors/500Error';
 import { Provider } from 'react-redux';
 import { store } from '@/store';
 ;

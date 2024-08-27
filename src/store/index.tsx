@@ -3,11 +3,11 @@ import {
     configureStore,
     getDefaultMiddleware,
 } from '@reduxjs/toolkit';
-import baseApi from '@/core/lib/base';
-import config from '@/config';
 import { useDispatch, useSelector } from 'react-redux';
 import { TypedUseSelectorHook } from 'react-redux';
 import themeConfigSlice from './themeConfigSlice';
+import baseApi from '../core/lib/base';
+import config from '@/config';
 
 
 
