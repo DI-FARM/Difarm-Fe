@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { IRootState } from '@/store';
-import { toggleSidebar, toggleTheme } from '@/store/themeConfigSlice';
+import { AppDispatch, IRootState } from '@/store';
+import { toggleSidebar, toggleTheme } from '../../store/themeConfigSlice';
 
 import profile from '@/assets/images/background/widgets/second.png';
 
@@ -25,7 +25,7 @@ const Header = () => {
     const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
 
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
    
@@ -63,12 +63,12 @@ console.log(farm)
                         </Link>
                         <button
                             type="button"
-                            className="collapse-icon flex flex-none rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary ltr:ml-2 rtl:mr-2 dark:bg-dark/40 dark:text-[#d0d2d6] dark:hover:bg-dark/60 dark:hover:text-primary lg:hidden"
+                            className="collapse-icon flex-none dark:text-[#d0d2d6] hover:text-primary dark:hover:text-primary flex lg:hidden ltr:ml-2 rtl:mr-2 p-2 rounded-full bg-white-light/40 dark:bg-dark/40 hover:bg-white-light/90 dark:hover:bg-dark/60"
                             onClick={() => {
                                 dispatch(toggleSidebar());
                             }}
                         >
-                            <IconMenu className="h-5 w-5" />
+                            <IconMenu className="w-5 h-5" />
                         </button>
                     </div>
 

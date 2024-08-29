@@ -26,7 +26,7 @@ const AddCattleModal = ({ isOpen, onClose, handleRefetch }: any) => {
         loading: farmsLoading,
         error: farmsError,
         fetchFarms,
-    }: any = useFarms(); // Fetch farms
+    }: any = useFarms(); 
 
     useEffect(() => {
         fetchFarms();

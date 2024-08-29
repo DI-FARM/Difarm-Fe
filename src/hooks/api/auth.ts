@@ -120,17 +120,27 @@ export const useUsers = () => {
     const addUser = async (user: any) => {
         setLoading(true);
         try {
-            await api.post('/auth/signup', user);
-            fetchUsers();
-            toast.success('Users Created successfully');
-        } catch (error:any) {
-            setError(error);
-            toast.error(error);
+          await api.post('/auth/signup', user);
+          fetchUsers();
+          toast.success('User Created successfully');
+        } catch (error: any) {
+          if (error.response && error.response.status === 400) {
+            if (error.response.data.error) {
+              const errorMessage = error.response.data.error.join(', ') ||error?.response?.data?.message;
+              toast.error(errorMessage);
+            } else if (error.response.data.message === 'An account with this phone address already exists.') {
+              toast.error('An account with this phone number already exists.');
+            } else {
+              toast.error('Failed to create user. Please try again later.');
+            }
+          } else {
+            toast.error('An unexpected error occurred. Please try again later.');
+          }
+          setError(error);
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
-    };
-
+      };
     const updateUser = async (id: any, user: any) => {
         setLoading(true);
         try {
