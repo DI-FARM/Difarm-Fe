@@ -29,12 +29,6 @@ const Sidebar = () => {
     setCurrentMenu((oldValue) => (oldValue === value ? "" : value));
   };
 
-  useEffect(() => {
-    if (window.innerWidth < 1024 && themeConfig.sidebar) {
-      dispatch(toggleSidebar());
-    }
-  }, [location, themeConfig.sidebar, dispatch]);
-
   const navigation = [
     {
       name: "Dashboard",

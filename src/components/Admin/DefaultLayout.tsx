@@ -1,15 +1,11 @@
 import {  Suspense, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-
-import React from 'react';
-
 import Sidebar from './Sidebar';
 import Header from './Header';
 import { Outlet, useNavigate } from 'react-router-dom';
 import Footer from './Footer';
 import toast from 'react-hot-toast';
 import { storage } from '@/utils';
-
 import { IRootState, useAppSelector } from '@/store';
 import Portals from '@/components/portal';
 import { toggleSidebar } from '@/store/themeConfigSlice';
