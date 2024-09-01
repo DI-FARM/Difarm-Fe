@@ -3,7 +3,6 @@ import { useFarms } from '@/hooks/api/farms';
 import { CheckIcon } from '@mantine/core';
 import { MapPinIcon } from '@heroicons/react/24/outline';
 import IconRouter from '@/components/Icon/IconRouter';
-import { BsType } from 'react-icons/bs';
 import IconUser from '@/components/Icon/IconUser';
 import IconSolana from '@/components/Icon/IconSolana';
 
@@ -25,16 +24,16 @@ function ChooseFarm() {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="flex flex-col items-center p-6">
+    <div className="flex flex-col items-center justify-center p-6">
       <h2 className="text-2xl font-bold text-primary mb-8">Please choose a Farm:</h2>
-      <div className="grid grid-cols-2 gap-8 justify-items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 justify-center items-center">
         {farms?.data?.map((farm: any) => (
           <div
             key={farm.id}
             onClick={() => handleSelectFarm(farm.id)}
-            className={`relative border-4 rounded-xl p-8 cursor-pointer shadow-lg
+            className={`relative border-4 rounded-xl p-8 w- cursor-pointer shadow-lg
               ${selectedFarmId === farm.id ? 'border-primary bg-primary-light' : 'border-gray-300 bg-white'} 
-              hover:shadow-2xl transition-transform transform hover:-translate-y-2 w-80`}
+              hover:shadow-2xl transition-transform transform hover:-translate-y-2 w-80 mb-6 sm:mb-0`}
           >
             <h3 className="text-xl font-bold mb-4 text-center">{farm.name}</h3>
             <div className="space-y-2">

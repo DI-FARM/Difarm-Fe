@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import i18next from 'i18next';
 import themeConfig from '../theme.config';
 
 const defaultState = {
@@ -123,17 +124,21 @@ const themeConfigSlice = createSlice({
             localStorage.setItem('semidark', payload);
             state.semidark = payload;
         },
-       
+        toggleLocale(state, { payload }) {
+            payload = payload || state.locale;
+            i18next.changeLanguage(payload);
+            state.locale = payload;
+        },
         toggleSidebar(state) {
             state.sidebar = !state.sidebar;
         },
 
         setPageTitle(state, { payload }) {
-            document.title = `${payload} Farm cattle `;
+            document.title = `${payload} | SMS web`;
         },
     },
 });
 
-export const { toggleTheme, toggleMenu, toggleLayout, toggleRTL, toggleAnimation, toggleNavbar, toggleSemidark, toggleSidebar, setPageTitle } = themeConfigSlice.actions;
+export const { toggleTheme, toggleMenu, toggleLayout, toggleRTL, toggleAnimation, toggleNavbar, toggleSemidark, toggleLocale, toggleSidebar, setPageTitle } = themeConfigSlice.actions;
 
 export default themeConfigSlice.reducer;
