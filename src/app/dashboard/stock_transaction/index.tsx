@@ -10,6 +10,7 @@ import ConfirmDeleteModal from './delete';
 import { useStockTransaction } from '@/hooks/api/stock_transactions';
 import { get } from 'lodash';
 import formatDateToLongForm from '@/utils/DateFormattter';
+import { useSearchParams } from 'react-router-dom';
 
 
 interface StockTransactionRecord {
@@ -23,6 +24,7 @@ interface StockTransactionRecord {
 }
 
 const StockTransactionManagement = () => {
+    const [searchParams] = useSearchParams();
     const { createTransaction, updateTransaction, deleteTransaction, loading, error,getStockTransactions,stock_transactions }:any = useStockTransaction();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -30,8 +32,8 @@ const StockTransactionManagement = () => {
     const [selectedTransaction, setSelectedTransaction] = useState<StockTransactionRecord | null>(null);
 
     useEffect(() => {
-      getStockTransactions()
-    }, [])
+      getStockTransactions(searchParams)
+    }, [searchParams])
     
     const handleRefetch = () => {
         getStockTransactions()
@@ -150,13 +152,13 @@ const StockTransactionManagement = () => {
             <div className="w-full">
                 <DataTableV2
                     columns={columns}
-                    previousPage={0}
-                    nextPage={0}
-                    currentPage={1}
-                    data={stock_transactions?.data?.transactions?? []} 
-                    total={stock_transactions?.data?.length ?? 0}
-                    lastPage={1}
+                    data={stock_transactions?.data?.data ?? []}
                     isLoading={loading}
+                    currentPage={stock_transactions?.data?.currentPage ?? 0}
+                    total={stock_transactions?.data?.total}
+                    lastPage={stock_transactions?.data?.totalPages + 1}
+                    previousPage={stock_transactions?.data?.previousPage}
+                    nextPage={stock_transactions?.data?.nextPage}
                     tableName={'Stock Transactions'}
                 />
             </div>

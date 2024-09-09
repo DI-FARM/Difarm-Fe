@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { api } from ".";
+import { api, queryString } from ".";
 import { useState } from "react";
 
 interface WasteLogData {
@@ -14,11 +14,11 @@ export const useWasteLog = () => {
     const FarmId = localStorage.getItem('FarmId');
     const [wasteLogs, setWasteLogs] = useState([]);
 
-    const getWasteLogs = async () => {
+    const getWasteLogs = async (query?:string) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await api.get(`/waste-logs/${FarmId}`);
+            const response = await api.get(`/waste-logs/${FarmId}?${queryString(query)}`);
             setWasteLogs(response.data);
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'An error occurred while fetching waste logs.';

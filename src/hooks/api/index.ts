@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+
 import { storage } from '@/utils';
 import axios from 'axios';
 
@@ -20,3 +20,7 @@ api.interceptors.request.use(
       return Promise.reject(error);
     }
   );
+
+  export const queryString = (query?: string): string => {
+    return query ? `${query}` : '';
+};

@@ -153,7 +153,7 @@ export default function DataTableV2<Entry extends {}>(
                 // eslint-disable-next-line array-callback-return
                 columns.map((d: any, index: any) => {
                     let val = item[columns[index]];
-                    console.log(val);
+                
                     rowhtml += '<td>' + val + '</td>';
                 });
                 rowhtml += '</tr>';
@@ -227,8 +227,8 @@ export default function DataTableV2<Entry extends {}>(
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const [paginate, setPaginate] = useState({
-        pageNumber: queryParams.get('pageNumber')
-            ? Number(queryParams.get('pageNumber'))
+        pageNumber: queryParams.get('page')
+            ? Number(queryParams.get('page'))
             : 1,
         pageSize: queryParams.get('pageSize')
             ? Number(queryParams.get('pageSize'))
@@ -240,7 +240,7 @@ export default function DataTableV2<Entry extends {}>(
         pageSize: number;
     }) => {
         const searchParams = new URLSearchParams(location.search);
-        searchParams.set('pageNumber', params.pageNumber.toString());
+        searchParams.set('page', params.pageNumber.toString());
         searchParams.set('pageSize', params.pageSize.toString());
         searchParams.set('search', search.toString());
         const newSearch = searchParams.toString();

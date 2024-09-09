@@ -160,7 +160,7 @@ const UpdateFarmModal = ({ isOpen, onClose, farm, handleRefetch }: any) => {
                                                 {usersLoading ? (
                                                     <option>Loading...</option>
                                                 ) : (
-                                                    users?.data?.map((user: any) => (
+                                                    users?.data?.data.map((user: any) => (
                                                         <option key={user.id} value={user.id}>
                                                             {user.fullname}
                                                         </option>

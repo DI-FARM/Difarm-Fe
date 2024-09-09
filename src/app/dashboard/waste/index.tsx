@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import AddWasteLogModal from "./add";
 import UpdateWasteLogModal from "./update";
 import ConfirmDeleteModal from "./delete";
+import { useSearchParams } from "react-router-dom";
 
 interface WasteLogRecord {
     id: string;
@@ -18,6 +19,7 @@ interface WasteLogRecord {
 }
 
 const WasteLogManagement = () => {
+    const [searchParams] = useSearchParams();
     const { createWasteLog, updateWasteLog, deleteWasteLog, loading, error, getWasteLogs, wasteLogs }:any = useWasteLog();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -42,8 +44,8 @@ const WasteLogManagement = () => {
     };
 
     useEffect(() => {
-        getWasteLogs();
-    }, []);
+        getWasteLogs(searchParams);
+    }, [searchParams]);
 
     const columns: TableColumnV2<WasteLogRecord>[] = [
         {
@@ -135,13 +137,13 @@ const WasteLogManagement = () => {
             <div className="w-full">
                 <DataTableV2
                     columns={columns}
-                    previousPage={0}
-                    nextPage={0}
-                    currentPage={1}
-                    data={wasteLogs?.data ?? []}
-                    total={wasteLogs?.data?.length ?? 0}
-                    lastPage={1}
+                    data={wasteLogs?.data?.data ?? []}
                     isLoading={loading}
+                    currentPage={wasteLogs?.data?.currentPage ?? 0}
+                    total={wasteLogs?.data?.total}
+                    lastPage={wasteLogs?.data?.totalPages + 1}
+                    previousPage={wasteLogs?.data?.previousPage}
+                    nextPage={wasteLogs?.data?.nextPage}
                     tableName={'Waste Logs'}
                 />
             </div>

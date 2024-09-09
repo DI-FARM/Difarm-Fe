@@ -17,7 +17,7 @@ function ChooseFarm() {
   const handleSelectFarm = (farmId: string) => {
     setSelectedFarmId(farmId);
     localStorage.setItem('FarmId', farmId);
-    console.log(`Selected Farm ID: ${farmId}`);
+    
   };
 
   if (loading) return <div>Loading...</div>;

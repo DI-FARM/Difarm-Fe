@@ -9,15 +9,17 @@ import { useVeterinarians } from '@/hooks/api/vet';
 import AddVeterinaryModal from './add_vet';
 import UpdateVeterinarianModal from './update_vet';
 import ConfirmDeleteModal from './delete';
+import { useSearchParams } from 'react-router-dom';
 
 const Veterinarians = () => {
+    const [searchParams] = useSearchParams();
     const { veterinarians, loading, deleteVeterinarian,getVeterinarians } :any= useVeterinarians();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedVeterinarian, setSelectedVeterinarian] = useState<any>({});
 
-    console.log(veterinarians)
+  
     const handleDelete = async () => {
         try {
             await deleteVeterinarian(selectedVeterinarian?.id);
@@ -34,8 +36,8 @@ const Veterinarians = () => {
         getVeterinarians();
     };
     useEffect(() => {
-        getVeterinarians()
-    }, [])
+        getVeterinarians(searchParams)
+    }, [searchParams])
     
 
     const columns: TableColumnV2<any>[] = [
@@ -130,13 +132,13 @@ const Veterinarians = () => {
             <div className="w-full">
                 <DataTableV2
                     columns={columns}
-                    previousPage={0}
-                    nextPage={0}
-                    currentPage={veterinarians?.data?.currentPage ?? 0}
-                    data={veterinarians?.data?.veterinarians ?? []}
-                    total={veterinarians?.data?.totalPages ?? 0}
-                    lastPage={1}
+                    data={veterinarians?.data?.data ?? []}
                     isLoading={loading}
+                    currentPage={veterinarians?.data?.currentPage ?? 0}
+                    total={veterinarians?.data?.total}
+                    lastPage={veterinarians?.data?.totalPages + 1}
+                    previousPage={veterinarians?.data?.previousPage}
+                    nextPage={veterinarians?.data?.nextPage}
                     tableName={'Veterinarians'}
                 />
             </div>

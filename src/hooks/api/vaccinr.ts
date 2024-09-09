@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { api } from '.';
+import { api, queryString } from '.';
 
 interface VaccineData {
     cattleId: string;
@@ -14,13 +14,13 @@ export const useVaccineRecords = () => {
     const [error, setError] = useState<string | null>(null);
     const [vaccineRecords, setVaccineRecords] = useState([]);
     const farmId = localStorage.getItem('FarmId');
-    const getVaccineRecords = async () => {
+    const getVaccineRecords = async (query?:string) => {
         setLoading(true);
         setError(null);
         try {
-            const response: any = await api.get(`/vaccinations/${farmId}`);
+            const response: any = await api.get(`/vaccinations/${farmId}?${queryString(query)}`);
             setVaccineRecords(response?.data);
-            console.log(response?.data)
+         
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'An error occurred while fetching vaccine records.';
             setError(errorMessage);

@@ -8,9 +8,11 @@ import { toast } from 'react-hot-toast';
 import { useVaccineRecords } from '@/hooks/api/vaccinr';
 import AddVaccineRecordModal from './add_vaccine';
 import UpdateVaccineModal from './update_vaccine';
+import { useSearchParams } from 'react-router-dom';
 
 
 const VaccineRecords = () => {
+    const [searchParams] = useSearchParams();
     const { vaccineRecords, loading, getVaccineRecords, deleteVaccineRecord }: any = useVaccineRecords();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -18,8 +20,8 @@ const VaccineRecords = () => {
     const [selectedRecord, setSelectedRecord] = useState<any>({});
 
     useEffect(() => {
-        getVaccineRecords();
-    }, []);
+        getVaccineRecords(searchParams);
+    }, [searchParams]);
 
     const handleDelete = async () => {
         try {
@@ -83,7 +85,6 @@ const VaccineRecords = () => {
         },
     ];
 
-    console.log(vaccineRecords)
     return (
         <div className="">
             <ol className="flex text-gray-500 font-semibold dark:text-white-dark">
@@ -126,13 +127,13 @@ const VaccineRecords = () => {
             <div className="w-full">
                 <DataTableV2
                     columns={columns}
-                    previousPage={0}
-                    nextPage={0}
-                    currentPage={1}
-                    data={vaccineRecords?.data?.vaccinations ?? []}
-                    total={vaccineRecords?.data?.totalPages ?? 0}
-                    lastPage={1}
+                    data={vaccineRecords?.data?.data ?? []}
                     isLoading={loading}
+                    currentPage={vaccineRecords?.data?.currentPage ?? 0}
+                    total={vaccineRecords?.data?.total}
+                    lastPage={vaccineRecords?.data?.totalPages + 1}
+                    previousPage={vaccineRecords?.data?.previousPage}
+                    nextPage={vaccineRecords?.data?.nextPage}
                     tableName={'Vaccine Records'}
                 />
             </div>

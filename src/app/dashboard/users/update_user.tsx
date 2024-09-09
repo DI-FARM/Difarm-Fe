@@ -40,7 +40,7 @@ const UpdateUserModal = ({ isOpen, onClose, user, handleRefetch }:any) => {
         } catch (err) {}
     };
 
-    console.log(user)
+ 
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" open={isOpen} onClose={onClose}>

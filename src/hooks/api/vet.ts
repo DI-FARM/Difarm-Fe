@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { api } from '.';
+import { api, queryString } from '.';
 
 interface VeterinarianData {
     name: string;
@@ -13,11 +13,11 @@ export const useVeterinarians = () => {
     const [error, setError] = useState<string | null>(null);
     const [veterinarians, setVeterinarians] = useState([]);
     const farmId =  localStorage.getItem('FarmId') 
-    const getVeterinarians = async () => {
+    const getVeterinarians = async (query?:string) => {
         setLoading(true);
         setError(null);
         try {
-            const response:any = await api.get(`/veterinarians/${farmId}`);
+            const response:any = await api.get(`/veterinarians/${farmId}?${queryString(query)}`);
             setVeterinarians(response?.data);
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'An error occurred while fetching veterinarians.';

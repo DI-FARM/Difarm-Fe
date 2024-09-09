@@ -8,7 +8,7 @@ interface SearchProps {
 }
 
 export default function Search({ itemList,setFilteredClient,title }: SearchProps) {
-  console.log(itemList)
+  
   const [filteredList, setFilteredList] = useState([]);
   const [selectedItem, setSelectedItem] = useState('');
 

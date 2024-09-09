@@ -9,6 +9,7 @@ import AddStockModal from './add_stock';
 import UpdateStockModal from './update_stock';
 import ConfirmDeleteModal from './delete';
 import formatDateToLongForm from '@/utils/DateFormattter';
+import { useSearchParams } from 'react-router-dom';
 
 interface StockRecord {
     id: string;
@@ -18,6 +19,7 @@ interface StockRecord {
 }
 
 const StockManagement = () => {
+    const [searchParams] = useSearchParams();
     const { createStock, updateStock, deleteStock, loading, error ,getStock,stocks}:any = useStock();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -40,8 +42,8 @@ const StockManagement = () => {
         }
     };
     useEffect(() => {
-    getStock()
-    }, [])
+    getStock(searchParams)
+    }, [searchParams])
     
 
     const columns: TableColumnV2<StockRecord>[] = [
@@ -88,7 +90,7 @@ const StockManagement = () => {
         },
     ];
 
-    console.log(stocks)
+
     return (
         <div className="">
             <ol className="flex text-gray-500 font-semibold dark:text-white-dark">
@@ -135,13 +137,13 @@ const StockManagement = () => {
             <div className="w-full">
                 <DataTableV2
                     columns={columns}
-                    previousPage={0}
-                    nextPage={0}
-                    currentPage={1}
-                    data={stocks?.data?.stocks ?? []} 
-                    total={stocks?.data?.length ?? 0} 
-                    lastPage={1}
+                    data={stocks?.data?.data ?? []}
                     isLoading={loading}
+                    currentPage={stocks?.data?.currentPage ?? 0}
+                    total={stocks?.data?.total}
+                    lastPage={stocks?.data?.totalPages + 1}
+                    previousPage={stocks?.data?.previousPage}
+                    nextPage={stocks?.data?.nextPage}
                     tableName={'Stock'}
                 />
             </div>

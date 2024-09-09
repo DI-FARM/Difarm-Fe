@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { api } from '.';
+import { api, queryString } from '.';
 
 interface StockTransactionData {
     stockId: string;
@@ -13,11 +13,11 @@ export const useStockTransaction = () => {
     const [error, setError] = useState<string | null>(null);
     const FarmId = localStorage.getItem('FarmId');
 const [stock_transactions, setStockTransactions] = useState([])
-const getStockTransactions = async () => {
+const getStockTransactions = async (query?:string) => {
     setLoading(true);
     setError(null);
     try {
-        const response = await api.get(`/stock-transactions/${FarmId}`);
+        const response = await api.get(`/stock-transactions/${FarmId}?${queryString(query)}`);
         setStockTransactions(response.data);
     } catch (error: any) {
         const errorMessage =

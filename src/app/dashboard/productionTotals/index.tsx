@@ -10,8 +10,10 @@ import formatDateToLongForm from '@/utils/DateFormattter';
 import AddStockTransactionModal from '../stock_transaction/add';
 import { useProductionTransaction } from '@/hooks/api/production_totals';
 import UpdateProductionTransactionModal from './updatePrice';
+import { useSearchParams } from 'react-router-dom';
 
 const ProductionTotals = () => {
+    const [searchParams] = useSearchParams();
     const {
         production_transactions, 
         getProductionTransactions,
@@ -24,8 +26,8 @@ const ProductionTotals = () => {
         useState<any | null>(null);
 
     useEffect(() => {
-        getProductionTransactions();
-    }, []);
+        getProductionTransactions(searchParams);
+    }, [searchParams]);
 
     const handleRefetch = () => {
         getProductionTransactions();
@@ -76,20 +78,11 @@ const ProductionTotals = () => {
                 </li>
                 <li className="before:content-['/'] before:px-1.5">
                     <button className="text-black dark:text-white-light hover:text-black/70 dark:hover:text-white-light/70">
-                        Production
+                        Production Totals
                     </button>
                 </li>
             </ol>
-            <div className="flex flex-row justify-end gap-2 mb-2">
-                <button
-                    type="button"
-                    onClick={() => setIsAddModalOpen(true)}
-                    className="btn btn-primary flex items-center gap-1"
-                >
-                    <IconPlus />
-                    Add Transaction
-                </button>
-            </div>
+           
 
            
             <UpdateProductionTransactionModal
@@ -102,13 +95,13 @@ const ProductionTotals = () => {
             <div className="w-full">
                 <DataTableV2
                     columns={columns}
-                    previousPage={0}
-                    nextPage={0}
-                    currentPage={1}
-                    data={production_transactions?.data ?? []}
-                    total={production_transactions?.data?.length ?? 0}
-                    lastPage={1}
+                    data={production_transactions?.data?.data ?? []}
                     isLoading={loading}
+                    currentPage={production_transactions?.data?.currentPage ?? 0}
+                    total={production_transactions?.data?.total}
+                    lastPage={production_transactions?.data?.totalPages + 1}
+                    previousPage={production_transactions?.data?.previousPage}
+                    nextPage={production_transactions?.data?.nextPage}
                     tableName={'Production Totals'}
                 />
             </div>

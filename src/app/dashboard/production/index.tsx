@@ -11,6 +11,7 @@ import { useProduction } from '@/hooks/api/productions';
 import formatDateToLongForm from '@/utils/DateFormattter';
 import ConfirmDeleteModal from './delete';
 import { TrashIcon } from '@heroicons/react/24/outline';
+import { useSearchParams } from 'react-router-dom';
 
 
 interface ProductionRecord {
@@ -25,16 +26,17 @@ interface ProductionRecord {
 }
 
 const Production = () => {
-    const { cattle, loading: cattleLoading } = useCattle();
-    const { createProduction, updateProduction, deleteProduction, loading, error,getProductions ,productions}:any = useProduction();
+    const [searchParams] = useSearchParams();
+    const { deleteProduction, loading, getProductions ,productions}:any = useProduction();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedProduction, setSelectedProduction] = useState<ProductionRecord | null>(null);
 
     useEffect(() => {
-        getProductions();
-    },[])
+        getProductions(searchParams);
+    },[searchParams])
+
     const handleDelete = async () => {
         if (selectedProduction) {
             try {
@@ -160,13 +162,13 @@ const Production = () => {
             <div className="w-full">
                 <DataTableV2
                     columns={columns}
-                    previousPage={0}
-                    nextPage={0}
-                    currentPage={1}
-                    data={productions?.data} 
-                    total={productions?.length ?? 0} 
-                    lastPage={1}
-                    isLoading={loading || cattleLoading}
+                    data={productions?.data?.data ?? []}
+                    isLoading={loading}
+                    currentPage={productions?.data?.currentPage ?? 0}
+                    total={productions?.data?.total}
+                    lastPage={productions?.data?.totalPages + 1}
+                    previousPage={productions?.data?.previousPage}
+                    nextPage={productions?.data?.nextPage}
                     tableName={'Production'}
                 />
             </div>

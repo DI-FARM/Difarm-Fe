@@ -41,18 +41,17 @@ const AddProductionModal: React.FC<AddProductionModalProps> = ({
     });
     
     useEffect(() => {
-     fetchCattle()
+     fetchCattle('pageSize=200000');
     }, [])
-    
-    console.log(cattle)
 
-    const options =
-        cattle?.data?.cattles?.map(
-            (cattle: { breed: any; id: string; tagNumber: string }) => ({
-                value: cattle.id,
-                label: `${cattle.tagNumber}(${cattle.breed}) `,
-            })
-        ) || [];
+
+    const cattleOptions = cattle?.data?.data
+    ?.filter((item: any) => item.status !== 'SOLD' && item.status !== 'PROCESSED')
+    .map((item: any) => ({
+      value: item.id,
+      label: item.tagNumber,
+    }));
+  
 
     const onSubmit = async (data: ProductionData) => {
         try {
@@ -111,7 +110,7 @@ const AddProductionModal: React.FC<AddProductionModalProps> = ({
                                                     label="Cattle"
                                                     name="cattleId"
                                                     placeholder="Select Cattle"
-                                                    options={options}
+                                                    options={cattleOptions}
                                                     error={
                                                         errors.cattleId?.message
                                                     }

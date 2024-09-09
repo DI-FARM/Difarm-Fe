@@ -43,16 +43,19 @@ const AddInseminationRecordModal: React.FC<AddInseminationRecordModalProps> = ({
     });
 
     useEffect(() => {
-        fetchCattle();
-        getVeterinarians();
+        fetchCattle('pageSize=100000');
+        getVeterinarians('pageSize=1000000');
     }, []);
 
-    const cattleOptions = cattle?.data?.cattles?.map((item: any) => ({
-        value: item.id,
-        label: item.tagNumber,
+    const cattleOptions = cattle?.data?.data
+    ?.filter((item: any) => item.status !== 'SOLD' && item.status !== 'PROCESSED')
+    .map((item: any) => ({
+      value: item.id,
+      label: item.tagNumber,
     }));
+  
 
-    const vetOptions = veterinarians?.data?.veterinarians?.map((item: any) => ({
+    const vetOptions = veterinarians?.data?.data?.map((item: any) => ({
         value: item.id,
         label: `${item.name}`,
     }));

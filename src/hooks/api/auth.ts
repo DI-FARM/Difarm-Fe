@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { api } from '.';
+import { api, queryString } from '.';
 import { storage } from '@/utils';
 import jwt_decode from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
@@ -104,10 +104,10 @@ export const useUsers = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const farmId = localStorage.getItem('FarmId');
-    const fetchUsers = async () => {
+    const fetchUsers = async (query?:string) => {
         setLoading(true);
         try {
-            const response = await api.get(`/users/${farmId}`);
+            const response = await api.get(`/users/${farmId}?${queryString(query)}`);
             setUsers(response.data);
        
         } catch (error:any) {
@@ -164,10 +164,6 @@ export const useUsers = () => {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        fetchUsers();
-    }, []);
 
     return {
         users,

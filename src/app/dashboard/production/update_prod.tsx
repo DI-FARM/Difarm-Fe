@@ -100,7 +100,7 @@ const UpdateProduction: React.FC<UpdateProductionModalProps> = ({
         fetchCattle();
     }, []);
 
-    console.log(cattle);
+  
 
     const options =
         cattle?.data?.cattles?.map(

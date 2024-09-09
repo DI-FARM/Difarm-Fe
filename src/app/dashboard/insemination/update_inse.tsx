@@ -55,17 +55,16 @@ const UpdateInseminationModal = ({
         } catch (err) {}
     };
 
-    const cattleOptions = cattle?.data?.cattles?.map((item: any) => ({
+    const cattleOptions = cattle?.data?.data?.map((item: any) => ({
         value: item.id,
         label: item.tagNumber,
     }));
 
-    const vetOptions = veterinarians?.data?.veterinarians?.map((item: any) => ({
+    const vetOptions = veterinarians?.data?.data?.map((item: any) => ({
         value: item.id,
         label: `${item.name}`,
     }));
 
-    console.log(insemination)
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" open={isOpen} onClose={onClose}>

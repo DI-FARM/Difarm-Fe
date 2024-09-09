@@ -20,7 +20,7 @@ const FarmsList = () => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [selectedFarm, setSelectedFarm] = useState<any>(null);
   const user = isLoggedIn();
-  console.log(user);
+ 
 
   const columns: TableColumnV2<any>[] = [
     {

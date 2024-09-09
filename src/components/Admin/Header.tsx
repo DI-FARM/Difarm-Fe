@@ -48,7 +48,6 @@ const Header = () => {
   const farmId: any = localStorage.getItem("FarmId");
   const { farm, loading, error }: any = useGetFarmById(farmId);
 
-  console.log(farm);
   return (
     <header
       className={`z-40 ${

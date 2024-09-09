@@ -53,10 +53,10 @@ const UpdateStockTransactionModal: React.FC<
     const { stocks, getStock }: any = useStock();
 
     useEffect(() => {
-        getStock();
+        getStock('pageSize=20000000');
     }, []);
-    console.log(stocks)
-    const options = stocks?.data?.stocks.map((stock: any) => ({
+   
+    const options = stocks?.data?.data.map((stock: any) => ({
         value: stock.id,
         label: stock.name,
     }));

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { api } from '.';
+import { api, queryString } from '.';
 
 export const useInseminationRecords = () => {
     const [loading, setLoading] = useState(false);
@@ -18,10 +18,10 @@ export const useInseminationRecords = () => {
         }
     };
 
-    const fetchInseminationRecords = async () => {
+    const fetchInseminationRecords = async (query?:string) => {
         setLoading(true);
         try {
-            const response = await api.get(`/inserminations/${farmId}`);
+            const response = await api.get(`/inserminations/${farmId}?${queryString(query)}`);
             setLoading(false);
             setInseminationRecords(response.data)
             return response.data;

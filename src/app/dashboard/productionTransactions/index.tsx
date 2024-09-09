@@ -11,6 +11,7 @@ import AddStockTransactionModal from '../stock_transaction/add';
 import UpdateProductionTransactionModal from './update';
 import AddProductionTransactionModal from './add';
 import { useProductionTransaction } from '@/hooks/api/production_transaction';
+import { useSearchParams } from 'react-router-dom';
 
 interface StockTransactionRecord {
     id: string;
@@ -23,6 +24,7 @@ interface StockTransactionRecord {
 }
 
 const ProductionTransactions = () => {
+    const [searchParams] = useSearchParams();
     const {
         production_transactions,
         getProductionTransactions,
@@ -39,8 +41,8 @@ const ProductionTransactions = () => {
         useState<StockTransactionRecord | null>(null);
 
     useEffect(() => {
-        getProductionTransactions();
-    }, []);
+        getProductionTransactions(searchParams);
+    }, [searchParams]);
 
     const handleRefetch = () => {
         getProductionTransactions();
@@ -148,13 +150,13 @@ const ProductionTransactions = () => {
             <div className="w-full">
                 <DataTableV2
                     columns={columns}
-                    previousPage={0}
-                    nextPage={0}
-                    currentPage={1}
-                    data={production_transactions?.data ?? []}
-                    total={production_transactions?.data?.length ?? 0}
-                    lastPage={1}
+                    data={production_transactions?.data?.data ?? []}
                     isLoading={loading}
+                    currentPage={production_transactions?.data?.currentPage ?? 0}
+                    total={production_transactions?.data?.total}
+                    lastPage={production_transactions?.data?.totalPages + 1}
+                    previousPage={production_transactions?.data?.previousPage}
+                    nextPage={production_transactions?.data?.nextPage}
                     tableName={'Production Transactions'}
                 />
             </div>

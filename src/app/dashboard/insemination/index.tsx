@@ -8,8 +8,10 @@ import { toast } from 'react-hot-toast';
 import { useInseminationRecords } from '@/hooks/api/insemination';
 import AddInseminationRecordModal from './add_inse';
 import UpdateInseminationModal from './update_inse';
+import { useSearchParams } from 'react-router-dom';
 
 const InseminationRecords = () => {
+    const [searchParams] = useSearchParams();
     const { inseminationRecords, loading, fetchInseminationRecords, deleteInseminationRecord }: any = useInseminationRecords();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -17,8 +19,8 @@ const InseminationRecords = () => {
     const [selectedRecord, setSelectedRecord] = useState<any>({});
 
     useEffect(() => {
-        fetchInseminationRecords();
-    }, []);
+        fetchInseminationRecords(searchParams);
+    }, [searchParams]);
 
     const handleDelete = async () => {
         try {
@@ -94,8 +96,7 @@ const InseminationRecords = () => {
             ),
         },
     ];
-    console.log(inseminationRecords)
-
+    
     return (
         <div className="">
             <ol className="flex text-gray-500 font-semibold dark:text-white-dark">
@@ -137,15 +138,15 @@ const InseminationRecords = () => {
             <div className="w-full">
                 <DataTableV2
                     columns={columns}
-                    previousPage={0}
-                    nextPage={0}
-                    currentPage={1}
-                    data={inseminationRecords?.data?.inseminations ?? []}
-                    total={inseminationRecords?.data?.length ?? 0}
-                    lastPage={1}
+                    data={inseminationRecords?.data?.data ?? []}
                     isLoading={loading}
-                    tableName={'Insemination Records'}
-                />
+
+                    currentPage={inseminationRecords?.data?.currentPage ?? 0}
+                    total={inseminationRecords?.data?.total}
+                    lastPage={inseminationRecords?.data?.totalPages + 1}
+                    previousPage={inseminationRecords?.data?.previousPage}
+                    nextPage={inseminationRecords?.data?.nextPage}
+                    tableName={'Insemination Records'}              />
             </div>
         </div>
     );
