@@ -60,7 +60,7 @@ const AddProductionModal: React.FC<AddProductionModalProps> = ({
                 quantity: parseFloat(data.quantity),
             };
             await createProduction(payload);
-            onClose();
+         
             handleRefetch();
             reset();
         } catch (err) {}

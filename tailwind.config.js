@@ -63,8 +63,9 @@ module.exports = {
                 },
             },
             fontFamily: {
-                nunito: ['Nunito', 'sans-serif'],
+                outfit: "Outfit",
             },
+
             spacing: {
                 4.5: '18px',
             },

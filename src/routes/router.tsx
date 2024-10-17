@@ -16,6 +16,7 @@ import WasteLogManagement from '@/app/dashboard/waste';
 import Widget from '@/app/dashboard/Widget';
 import ProfilePage from '@/app/profile';
 import AdminLayout from '@/components/Admin/DefaultLayout';
+import Home from "@/app/home";
 
 
 export default function AppRoutes() {
@@ -24,9 +25,10 @@ export default function AppRoutes() {
         {/* <Header />
         <Sidebar /> */}
         <Routes>
-            <Route path="/" element={<Navigate to="/login" />} />
-            <Route path="*" element={<Navigate to="/login" />} />
+            <Route path="/" element={<Navigate to="/home" />} />
+            <Route path="*" element={<Navigate to="/home" />} />
             <Route path="login" element={<Login />} />
+            <Route path="home" element={<Home />} />
             <Route path="choose-farm" element={<ChooseFarm />} />
             <Route path="account" element={<AdminLayout />}>
 

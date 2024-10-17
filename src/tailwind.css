@@ -43,6 +43,30 @@
 /* Select2*/
 @import './assets/css/select2.css';
 
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;500;600;700;800;900&display=swap');
+
+*{
+    font-family: 'Outfit', sans-serif;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide Default Scrollbar */
+.scrollbar-hidden {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+/* Hover Effect for Description and Overlay */
+.group-hover\\:opacity-90:hover .group-hover\\:opacity-100 {
+    opacity: 1;
+}
+
+.group-hover\\:opacity-90:hover {
+    opacity: 0.9;
+}
 input,
 textarea,
 select {
@@ -74,7 +98,7 @@ select {
     }
 
     body {
-        @apply bg-[#fafafa] font-nunito;
+        @apply bg-[#fafafa]  ;
     }
 
     body.dark {
@@ -86,6 +110,137 @@ select {
         @apply relative rounded-md bg-white p-5 shadow dark:bg-black;
     }
 
+
+    * {
+        box-sizing: border-box;
+        font-family: var(--font-family);
+        color: var(--Very-Dark-Blue);
+    }
+
+    .service-card {
+        width: 350px;
+        height: 250px;
+        box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-flow: column nowrap;
+        align-content: flex-start;
+        padding: 1.5em;
+        text-align: left;
+        border-radius: 2%;
+        border-style: solid;
+        border-width: 4px 0px 0px 0px;
+        margin-bottom: 2rem;
+        font-weight: 400;
+    }
+
+    .service-header {
+        text-align: left;
+        font-weight: 600;
+        font-size: 1.2rem;
+        /* padding: 0px; */
+    }
+
+    .service-subheader {
+        padding: 0px;
+        font-size: 85%;
+        /* margin: 0; */
+    }
+
+    .icon {
+        align-self: flex-end;
+        padding-top: 10%;
+
+
+    }
+
+    
+
+
+.container .main{
+    display: flex;
+    height: 90vh;
+    width: 90vw;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+.container .main .g1{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 90vh;
+    width: 30%;
+    gap: 20px;
+}
+.container .main .g1 .p1{
+    display: flex;
+    flex-direction: column;
+    height:21vh;
+    width: 100%;
+    background-image: linear-gradient(white, rgb(130, 128, 128));
+    gap: 6px;
+    overflow: hidden;
+    padding: 10px;
+    transition: height ease-in-out 0.20s;
+    border: 2px solid black;
+    border-radius: 20px;
+}
+.container .main .g1 .p1:hover{
+    height: 50vh;
+    box-shadow: 0px 0px 4px 4px white;
+}
+.container .main .g1 .p1 .image{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 15vh;
+    width: 100%;
+}
+.container .main .g1 .p1 .image img{
+    height: 100px;
+    width: 100px;
+}
+.container .main .g1 .p1 .name{
+    height: 10vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.container .main .g1 .p1 .description{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 20vh;
+    width: 100%;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}
+.container .main .g1 .p1 .description span{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 13px;
+}
+.container .main .g1 .p1 .links{
+    height: 5vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.container .main .g1 .p1 .links a{
+    color: black;
+    display: flex;
+    text-decoration: none;
+}
+.container .main .g1 .p1 .links a i{
+    font-size: 25px;
+}
     /* Navbar */
     .navbar-sticky header,
     .navbar-floating header {

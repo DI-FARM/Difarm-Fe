@@ -5,7 +5,7 @@ import { storage } from '@/utils';
 import jwt_decode from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 
-export const baseURL = process.env.REACT_APP_SERVER_URL;
+export const baseURL = 'https://unipod.ur.ac.rw:4000';
 
 
 export const useLogin = () => {
