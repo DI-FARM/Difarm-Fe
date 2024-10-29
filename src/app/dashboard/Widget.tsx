@@ -1,264 +1,108 @@
-import IconAirplay from '@/components/Icon/IconAirplay';
-import IconChatNotification from '@/components/Icon/IconChatNotification';
-import { IRootState, useAppSelector } from '@/store';
-import ReactApexChart from 'react-apexcharts';
-import React from 'react';
-import Tippy from '@tippyjs/react';
-import 'tippy.js/dist/tippy.css';
-import IconTrash from '@/components/Icon/IconTrash';
+import { useGeneralStatistics, useStatisticsByFarmId } from '@/hooks/api/statistics';
+import React, { useEffect } from 'react';
+import { FaChartLine, FaWarehouse, FaSyringe, FaProcedures, FaCrow } from 'react-icons/fa';
 
+const StatisticsDashboard = () => {
+  const farmId :any = localStorage.getItem('FarmId');
+  const { fetchStatisticsByFarmId, statistics: statisticsData, loading }: any = useStatisticsByFarmId(farmId);
 
-export default function Widget() {
-    return (
-        <>
-            <div className="grid sm:grid-cols-4 md:grid-cols-3 gap-2 grid-cols-2">
-                <Card
-                    icon={<IconChatNotification />}
-                    title="Total Cows"
-                    value="100"
-                    percentage="+20%"
-                />
-                <Card
-                    icon={<IconAirplay />}
-                    title="Total Bulls"
-                    value="700"
-                    percentage="-10%"
-                />
-                <Card
-                    icon={<IconAirplay />}
-                    title="Total Bulls"
-                    value="700"
-                    percentage="-10%"
-                />
-                <Card
-                    icon={<IconAirplay />}
-                    title="Total Bulls"
-                    value="700"
-                    percentage="-10%"
-                />
-            </div>
-            <div className='panel'>
-              <div>
-                <p className='text-lg font-bold  '>Cattle status</p>
-              </div>
-                <Chart />
-            </div>
-            <div className='panel mt-3 '>
-            <div>
-                <p className='text-lg font-bold  '>Latest Cattle</p>
-              </div>
-              <Table/>
-            </div>
-        </>
-    );
-}
+  useEffect(() => {
+    fetchStatisticsByFarmId();
+  }, []);
 
-function Card({ icon, title, value, percentage }: any) {
-    return (
-        <div className="relative flex flex-col items-center justify-center min-w-0 mb-6 break-words bg-green-200 shadow-soft-xl rounded-2xl bg-clip-border">
-            <div className="flex-auto p-4">
-                <div className="flex flex-wrap -mx-3">
-                    <div className="flex-none w-2/3 max-w-full px-3">
-                        <div>
-                            <p className="mb-0 font-sans font-semibold leading-normal text-sm">
-                                {title}
-                            </p>
-                            <h5 className="mb-0 font-bold">
-                                {value}
-                                <span className="leading-normal text-sm font-weight-bolder text-lime-500">
-                                    {percentage}
-                                </span>
-                            </h5>
-                        </div>
-                    </div>
-                    <div className="w-4/12 max-w-full px-3 ml-auto text-right flex-0">
-                        <div className="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-green-700 to-green-500 shadow-soft-2xl flex items-center justify-center">
-                            {icon}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
+  if (loading) return <div className="text-center text-lg">Loading...</div>;
 
-function Chart() {
-    const isDark = useAppSelector(
-        (state: IRootState) =>
-            state.themeConfig.theme === 'dark' || state.themeConfig.isDarkMode
-    );
-    const isRtl = useAppSelector(
-        (state: IRootState) => state.themeConfig.rtlClass === 'rtl'
-    );
-    const columnChart4: any = {
-      series: [
-          {
-              name: 'Cows',
-              data: [23, 55, 70, 88, 400, 60, 50, 90, 120, 150, 200, 300],
-          },
-          {
-              name: 'Bulls',
-              data: [23, 55, 70, 88, 223, 57, 89, 110, 130, 170, 180, 250],
-          },
-      ],
-  
-      options: {
-          chart: {
-              height: 300,
-              type: 'bar',
-              zoom: {
-                  enabled: false,
-              },
-              toolbar: {
-                  show: false,
-              },
-          },
-          colors: ['#66CC66', '#128A33'],
-          dataLabels: {
-              enabled: false,
-          },
-          stroke: {
-              show: true,
-              width: 2,
-              colors: ['transparent'],
-          },
-          plotOptions: {
-              bar: {
-                  horizontal: false,
-                  columnWidth: '55%',
-                  endingShape: 'rounded',
-              },
-          },
-          grid: {
-              borderColor: isDark ? '#191e3a' : '#e0e6ed',
-          },
-          xaxis: {
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-              axisBorder: {
-                  color: isDark ? '#191e3a' : '#e0e6ed',
-              },
-          },
-          yaxis: {
-              opposite: isRtl ? true : false,
-              labels: {
-                  offsetX: isRtl ? -10 : 0,
-              },
-          },
-          tooltip: {
-              theme: isDark ? 'dark' : 'light',
-              y: {
-                  formatter: function (val: any) {
-                      return val;
-                  },
-              },
-          },
-      },
-  };
-  
-    return (
-        <div>
-            <ReactApexChart
-                series={columnChart4.series}
-                options={columnChart4.options}
-                className="rounded-lg bg-white dark:bg-black overflow-hidden"
-                type="bar"
-                height={300}
-            />
-        </div>
-    );
-}
+  if (!statisticsData) return <div className="text-center text-lg">No data available</div>;
 
+  const { cattle, production, stock, insemination, vaccination } = statisticsData.data;
 
-
-
-function Table() {
-  const tableData = [
-      {
-          id: 1,
-          name: 'Bessie',
-          breed: 'Holstein',
-          age: 5,
-          milkProduction: '30 liters/day',
-          status: 'Active',
-          location: 'Barn 1',
-      },
-      {
-          id: 2,
-          name: 'Moo-ry',
-          breed: 'Jersey',
-          age: 3,
-          milkProduction: '25 liters/day',
-          status: 'Inactive',
-          location: 'Barn 2',
-      },
-      {
-          id: 3,
-          name: 'Daisy',
-          breed: 'Guernsey',
-          age: 4,
-          milkProduction: '28 liters/day',
-          status: 'Active',
-          location: 'Barn 1',
-      },
-      {
-          id: 4,
-          name: 'Spot',
-          breed: 'Ayrshire',
-          age: 6,
-          milkProduction: '32 liters/day',
-          status: 'Active',
-          location: 'Barn 2',
-      },
-  ];
-
-  return (
-    <div className="table-responsive mb-5">
-      <table>
-          <thead>
-              <tr>
-                  <th>Name</th>
-                  <th>Breed</th>
-                  <th>Age</th>
-                  <th>Milk Production</th>
-                  <th>Status</th>
-                  <th>Location</th>
-                  <th className="text-center">Action</th>
-              </tr>
-          </thead>
-          <tbody>
-              {tableData.map((data) => {
-                  return (
-                      <tr key={data.id}>
-                          <td>
-                              <div className="whitespace-nowrap">{data.name}</div>
-                          </td>
-                          <td>{data.breed}</td>
-                          <td>{data.age}</td>
-                          <td>{data.milkProduction}</td>
-                          <td>
-                              <div
-                                  className={`whitespace-nowrap ${
-                                      data.status === 'Active'
-                                          ? 'text-success'
-                                          : 'text-danger'
-                                  }`}
-                              >
-                                  {data.status}
-                              </div>
-                          </td>
-                          <td>{data.location}</td>
-                          <td className="text-center">
-                              <Tippy content="View Details">
-                                  <button type="button">
-                                      <IconTrash/>
-                                  </button>
-                              </Tippy>
-                          </td>
-                      </tr>
-                  );
-              })}
-          </tbody>
-      </table>
+  const SectionCard = ({ icon, title, color, children }:any) => (
+    <div className={`bg-white rounded-lg shadow-lg border-l-4 p-4 border-${color}-500`}>
+      <div className="flex items-center mb-4">
+        {icon}
+        <h3 className="text-lg font-semibold ml-2">{title}</h3>
+      </div>
+      <div className="grid gap-2">{children}</div>
     </div>
   );
-}
+
+  const StatisticCard = ({ label, value, percentage }:any) => (
+    <div className={`p-3 shadow-sm flex justify-between items-center rounded-md ${
+      label === 'Total' || label === 'Total Quantity' ? 'bg-blue-100 border border-blue-300' : 'bg-gray-100'
+    }`}>
+      <p className={`text-sm font-medium ${label === 'Total'||label==='Total Quantity'  ? 'text-blue-700' : 'text-gray-600'}`}>
+        {label}
+      </p>
+      <div className="text-right">
+        <p className={`text-md font-semibold ${label === 'Total' || label==='Total Quantity' ?'text-blue-700' : ''}`}>
+          {value}
+        </p>
+        {percentage !== undefined && (
+          <p className="text-xs text-gray-500">{percentage.toFixed(2)}%</p>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="container mx-auto p-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 font-outfit">
+      <SectionCard
+        icon={<FaWarehouse className="text-blue-500 text-2xl" />}
+        title="Cattle Statistics"
+        color="blue"
+      >
+        <StatisticCard label="Total" value={cattle.total} />
+        <StatisticCard label="Healthy" value={cattle.healthy.count} percentage={cattle.healthy.percentage} />
+        <StatisticCard label="Sick" value={cattle.sick.count} percentage={cattle.sick.percentage} />
+        <StatisticCard label="Sold" value={cattle.sold.count} percentage={cattle.sold.percentage} />
+        <StatisticCard label="Processed" value={cattle.processed.count} percentage={cattle.processed.percentage} />
+      </SectionCard>
+
+      <SectionCard
+        icon={<FaChartLine className="text-green-500 text-2xl" />}
+        title="Production Statistics"
+        color="green"
+      >
+        <StatisticCard label="Total Quantity" value={production.totalQuantity} />
+        {production.byProduct.map((product:any, index:any) => (
+          <StatisticCard key={index} label={product.productName} value={product.quantity} percentage={product.percentage} />
+        ))}
+      </SectionCard>
+
+      <SectionCard
+        icon={<FaWarehouse className="text-yellow-500 text-2xl" />}
+        title="Stock Statistics"
+        color="yellow"
+      >
+        <StatisticCard label="Total Quantity" value={stock.totalQuantity} />
+        {stock.byType.map((item:any, index:any) => (
+          <StatisticCard key={index} label={item.type} value={item.quantity} percentage={item.percentage} />
+        ))}
+      </SectionCard>
+
+      <SectionCard
+        icon={<FaProcedures className="text-indigo-500 text-2xl" />}
+        title="Insemination Statistics"
+        color="indigo"
+      >
+        <StatisticCard label="Total" value={insemination.total} />
+        {insemination.byType.map((type:any, index:any) => (
+          <StatisticCard key={index} label={type.type} value={type.count} percentage={type.percentage} />
+        ))}
+      </SectionCard>
+
+      <SectionCard
+        icon={<FaSyringe className="text-red-500 text-2xl" />}
+        title="Vaccination Statistics"
+        color="red"
+      >
+        <StatisticCard label="Total" value={vaccination.total} />
+        {vaccination.byVaccineType.map((vaccine:any, index:any) => (
+          <StatisticCard key={index} label={vaccine.vaccineType} value={vaccine.count} percentage={vaccine.percentage} />
+        ))}
+      </SectionCard>
+    </div>
+  );
+};
+
+export default StatisticsDashboard;

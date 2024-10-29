@@ -63,7 +63,7 @@ export default function AdminLayout() {
   
 
     return (
-        <div className="relative">
+        <div className="relative font-outfit">
           
             <div className={`${(!themeConfig.sidebar && 'hidden') || ''} fixed inset-0 bg-[black]/60 z-50 lg:hidden`} onClick={() => dispatch(toggleSidebar())}></div>
            

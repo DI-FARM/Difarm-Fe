@@ -25,8 +25,8 @@ export default function AppRoutes() {
         {/* <Header />
         <Sidebar /> */}
         <Routes>
-            <Route path="/" element={<Navigate to="/home" />} />
-            <Route path="*" element={<Navigate to="/home" />} />
+            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="*" element={<Navigate to="/login" />} />
             <Route path="login" element={<Login />} />
             <Route path="home" element={<Home />} />
             <Route path="choose-farm" element={<ChooseFarm />} />
