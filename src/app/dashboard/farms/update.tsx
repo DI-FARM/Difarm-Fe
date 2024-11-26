@@ -12,7 +12,8 @@ import { useUpdateFarm } from '@/hooks/api/farms';
 const farmSchema = z.object({
     name: z.string().nonempty('Name is required'),
     location: z.string().nonempty('Location is required'),
-    size: z.string().nonempty('Size is required'),
+    size: z.number().min(0.01, 'Size must be at least 0.01'),
+    // size: z.string().nonempty('Size is required'),
     type: z.string().nonempty('Type is required'),
     ownerId: z.string().nonempty('Owner ID is required'),
 });

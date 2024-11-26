@@ -59,6 +59,7 @@
     "dayjs": "^1.11.6",
     "easymde": "^2.18.0",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "farm": "file:",
     "file-saver": "^2.0.5",
     "formik": "^2.2.9",
     "highlight.js": "^11.6.0",
