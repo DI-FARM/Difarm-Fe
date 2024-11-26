@@ -14,6 +14,7 @@ const vaccineRecordSchema = z.object({
     cattleId: z.string().nonempty('Cattle ID is required'),
     date: z.string().nonempty('Date is required'),
     vaccineType: z.string().nonempty('Vaccine type is required'),
+    price: z.number().min(0.01, 'Price must be at least 0.01'),
     vetId: z.string().nonempty('Veterinarian ID is required'),
 });
 
@@ -138,6 +139,16 @@ const AddVaccineRecordModal: React.FC<AddVaccineRecordModalProps> = ({
                                         type="text"
                                         error={errors.vaccineType?.message}
                                         registration={register('vaccineType')}
+                                    />
+                                    <InputField
+                                        label="Vaccine price"
+                                        name="price"
+                                        placeholder="Enter Price"
+                                        type="number"
+                                        error={errors.price?.message}
+                                        registration={register('price', {
+                                            valueAsNumber: true,
+                                        })}
                                     />
                                     <AppSelect
                                         label="Veterinarian"

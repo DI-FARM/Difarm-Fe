@@ -56,6 +56,11 @@ const VaccineRecords = () => {
             render: row => <p>{row?.vaccineType}</p>,
         },
         {
+            title: 'Vaccine price',
+            accessor: 'price',
+            render: row => <p>{row?.price}</p>,
+        },
+        {
             title: 'Veterinarian ',
             accessor: 'vet.name',
             render: row => <p>{row?.veterinarian?.name}</p>,
