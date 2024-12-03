@@ -12,6 +12,7 @@ import { useVeterinarians } from '@/hooks/api/vet';
 const vaccineSchema = z.object({
     cattleId: z.string().nonempty('Cattle ID is required'),
     vaccineType: z.string().nonempty('Vaccine type is required'),
+    price: z.number().min(0.01, 'Price must be at least 0.01'),
     vetId: z.string().nonempty('Vet ID is required'),
     date: z.string().nonempty('Date is required'),
 });
@@ -143,6 +144,22 @@ const UpdateVaccineModal = ({
                                                     }
                                                     name="vaccineType"
                                                 />
+                                            </div>
+                                            <div>
+                                            <InputField
+                                        
+                                        label="Vaccine price"
+                                        name="price"
+                                        placeholder="Enter Price"
+                                        type="number"
+                                        defaultValue={
+                                            vaccine?.price
+                                        }
+                                        error={errors.price?.message}
+                                        registration={register('price', {
+                                            valueAsNumber: true,
+                                        })}
+                                    />
                                             </div>
                                             <div className="mb-4">
                                                 <AppSelect
