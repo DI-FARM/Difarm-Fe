@@ -30,7 +30,7 @@ export default function AppRoutes() {
             <Route path="login" element={<Login />} />
             <Route path="home" element={<Home />} />
             <Route path="choose-farm" element={<ChooseFarm />} />
-            <Route path="account" element={<AdminLayout />}>
+            <Route path="account/:year?" element={<AdminLayout />}>
 
                 <Route index element={<Widget />} />
                 <Route path='profile' element={<ProfilePage />} />
