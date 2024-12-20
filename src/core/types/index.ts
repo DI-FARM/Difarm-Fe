@@ -3,6 +3,11 @@ export interface BaseModel {
 	createdAt: string;
 	updatedAt: string;
 }
+export interface DefaultResponse <T> {
+	status: number,
+	message: string
+	data: T
+}
 
 export interface ResponseModel<Model> {
     list: any;

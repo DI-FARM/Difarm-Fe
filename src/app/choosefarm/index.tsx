@@ -5,6 +5,7 @@ import { MapPinIcon } from '@heroicons/react/24/outline';
 import IconRouter from '@/components/Icon/IconRouter';
 import IconUser from '@/components/Icon/IconUser';
 import IconSolana from '@/components/Icon/IconSolana';
+import { DashCard } from "@/components/Dashcard/Index";
 
 function ChooseFarm() {
   const { farms, loading, error, fetchFarms }: any = useFarms();

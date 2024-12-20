@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { api } from '.';
+import { DefaultResponse } from "@/core";
+import { CattleSummary } from "@/core/types/cattle.types";
 
 // Define the StatisticsData type
 type CattleData = {
@@ -114,4 +116,27 @@ export const useStatisticsByFarmId = (farmId: string) => {
     };
 
     return { fetchStatisticsByFarmId, statistics, loading, error };
+};
+
+export const useGetFarmSummary = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [cattleStatistics, setcattleStatistics] = useState< DefaultResponse<CattleSummary[]> | null>(null);
+
+
+  const getCattleSummary = async (year:string) => {
+      setLoading(true);
+      setError(null);
+      try {
+          const response = await api.get(`/cattles/summary/${year}`);
+          setcattleStatistics(response.data);          
+      } catch (err:any) {
+          setError(err.response?.data?.message || 'An error occurred while loading statistics.');
+          // throw err;
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  return {cattleStatistics, loading, error, getCattleSummary };
 };
