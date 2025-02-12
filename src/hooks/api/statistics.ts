@@ -124,11 +124,11 @@ export const useGetFarmSummary = () => {
   const [cattleStatistics, setcattleStatistics] = useState< DefaultResponse<CattleSummary[]> | null>(null);
 
 
-  const getCattleSummary = async (year:string) => {
+  const getCattleSummary = async (year:string,farmId: string) => {
       setLoading(true);
       setError(null);
       try {
-          const response = await api.get(`/cattles/summary/${year}`);
+          const response = await api.get(`/cattles/summary/${year}/${farmId}`);
           setcattleStatistics(response.data);          
       } catch (err:any) {
           setError(err.response?.data?.message || 'An error occurred while loading statistics.');

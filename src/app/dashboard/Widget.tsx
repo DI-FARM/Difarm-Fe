@@ -42,7 +42,7 @@ const StatisticsDashboard = () => {
   } = useGetFarmSummary();
 
   useEffect(() => {
-    getCattleSummary(cattleSummYear).finally(() => setYearChangeLoading(false));
+    getCattleSummary(cattleSummYear, farmId).finally(() => setYearChangeLoading(false));
   }, [cattleSummYear]);
 
   function handlecattleSummYearChange(e: any) {
@@ -125,9 +125,8 @@ const StatisticsDashboard = () => {
               value={cattleSummYear}
               onChange={(e) => handlecattleSummYearChange(e)}
             >
+              <option value="2022">2025</option>
               <option value="2024">2024</option>
-              <option value="2023">2023</option>
-              <option value="2022">2022</option>
             </select>
           </div>
         </div>
