@@ -4,6 +4,7 @@ import { api, queryString } from ".";
 
 export const useCattle = () => {
   const [cattle, setCattle] = useState([]);
+  const [allCattles, setallCattles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const farmId = localStorage.getItem("FarmId");
@@ -16,6 +17,23 @@ export const useCattle = () => {
      
       const response = await api.get(`/cattles/${farmId}?${queryString(query)}`);
       setCattle(response.data);
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message ||
+        "An error occurred while fetching cattle.";
+      toast.error(errorMessage);
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const fetchAllCattle = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.get(`/cattles/${farmId}/all`);
+      console.log('alll',response.data);
+      setallCattles(response.data);
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message ||
@@ -83,9 +101,11 @@ export const useCattle = () => {
 
   return {
     cattle,
+    allCattles,
     loading,
     error,
     fetchCattle,
+    fetchAllCattle,
     addCattle,
     updateCattle,
     deleteCattle,

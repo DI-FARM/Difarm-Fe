@@ -14,7 +14,7 @@ import { useSearchParams } from "react-router-dom";
 
 const CattleList = () => {
   const [searchParams] = useSearchParams();
-  const { cattle, loading, fetchCattle, deleteCattle }: any = useCattle();
+  const { cattle, allCattles, loading, fetchCattle, fetchAllCattle, deleteCattle }: any = useCattle();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -33,7 +33,9 @@ const CattleList = () => {
   };
 
   const handleRefetch = () => {
-    fetchCattle(searchParams);
+    Promise.all([fetchCattle(), fetchAllCattle()]);
+    // fetchCattle(searchParams);
+    // fetechAllCattle();
   };
 
   const openUpdateModal = (row: any) => {
@@ -49,6 +51,9 @@ const CattleList = () => {
   useEffect(() => {
     fetchCattle(searchParams);
   }, [searchParams]);
+  useEffect(() => {
+    fetchAllCattle();
+  }, []);
 
   const columns: TableColumnV2<any>[] = [
     {
@@ -61,16 +66,10 @@ const CattleList = () => {
         </div>
       ),
     },
-
     {
       title: "Gender",
       accessor: "gender",
       render: (row) => <p>{capitalize(row?.gender)}</p>,
-    },
-    {
-      title: "Date of Birth",
-      accessor: "DOB",
-      render: (row) => <p>{formatDateToLongForm(row?.DOB)}</p>,
     },
     {
       title: "Weight(Kg)",
@@ -132,14 +131,34 @@ const CattleList = () => {
       render: (row) => <p>{formatDateToLongForm(row?.lastCheckupDate)}</p>,
     },
     {
+      title: "Birth orign",
+      accessor: "birthOrigin",
+      render: (row) => <p>{row?.birthOrigin}</p>,
+    },
+    {
+      title: "Date of Birth",
+      accessor: "DOB",
+      render: (row) => <p>{row.DOB ? formatDateToLongForm(row?.DOB): '-'}</p>,
+    },
+    {
+      title: "Mother Tag",
+      accessor: "mother.tagNumber",
+      render: (row) => <p>{row.mother ? row.mother.tagNumber: '-'}</p>,
+    },
+    {
       title: "Purchase Date",
       accessor: "purchaseDate",
-      render: (row) => <p>{formatDateToLongForm(row?.purchaseDate)}</p>,
+      render: (row) => <p>{row.purchaseDate ? formatDateToLongForm(row.purchaseDate): '-'}</p>,
     },
     {
       title: "Price(RWF)",
       accessor: "price",
-      render: (row) => <p>{row?.price}</p>,
+      render: (row) => <p>{row.price ? row.price: '-'}</p>,
+    },
+    {
+      title: "Previous owner",
+      accessor: "previousOwner",
+      render: (row) => <p>{row.previousOwner? row.previousOwner:'-'}</p>,
     },
     {
       title: "Date Created",
@@ -189,11 +208,13 @@ const CattleList = () => {
       </div>
 
       <AddCattleModal
+        cattles={allCattles?.data ?? []}
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         handleRefetch={handleRefetch}
       />
       <UpdateCattleModal
+        cattles={allCattles?.data ?? []}
         isOpen={isUpdateModalOpen}
         onClose={() => {
           setSelectedCattle(null);
