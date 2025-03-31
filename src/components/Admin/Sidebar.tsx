@@ -104,24 +104,10 @@ const Sidebar = () => {
       roles: ["SUPERADMIN", "ADMIN", "MANAGER"],
     },
     {
-      name: "Vaccination",
-      to: "/account/vaccine",
-      icon: IconHelpCircle,
-      current: location.pathname === "/account/vaccine",
-      roles: ["SUPERADMIN", "ADMIN", "MANAGER"],
-    },
-    {
-      name: "Veterinarian",
-      to: "/account/veterinarian",
-      icon: IconUsersGroup,
-      current: location.pathname === "/account/veterinarian",
-      roles: ["SUPERADMIN", "ADMIN", "MANAGER"],
-    },
-    {
-      name: "Inseminations",
-      to: "/account/inseminations",
+      name: "Health",
+      to: "/account/health",
       icon: IconBolt,
-      current: location.pathname === "/account/inseminations",
+      current: location.pathname === "/account/health",
       roles: ["SUPERADMIN", "ADMIN", "MANAGER"],
     },
   ];
