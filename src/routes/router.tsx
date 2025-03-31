@@ -17,6 +17,7 @@ import Widget from '@/app/dashboard/Widget';
 import ProfilePage from '@/app/profile';
 import AdminLayout from '@/components/Admin/DefaultLayout';
 import Home from "@/app/home";
+import Health from "@/app/dashboard/health";
 
 
 export default function AppRoutes() {
@@ -43,9 +44,7 @@ export default function AppRoutes() {
                 <Route path='production_transactions' element={<ProductionTransactions />} />
                 <Route path='stock_transactions' element={<StockTransactionManagement />} />
                 <Route path='cattle' element={<CattleList />} />
-                <Route path='vaccine' element={<VaccineRecords />} />
-                <Route path='veterinarian' element={<Veterinarians />} />
-                <Route path='inseminations' element={<InseminationRecords />} /> 
+                <Route path='health' element={<Health />} />
             </Route>
         </Routes>
         </>
