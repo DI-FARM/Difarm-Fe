@@ -42,7 +42,7 @@ const Header = () => {
   const Logout = () => {
     storage.removeToken();
     localStorage.removeItem("Farm_user");
-    navigate("/login");
+    navigate("/home");
   };
 
   const farmId: any = localStorage.getItem("FarmId");

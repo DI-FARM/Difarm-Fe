@@ -91,18 +91,47 @@ const Sidebar = () => {
     },
     {
       name: "Stock",
-      to: "/account/stock",
-      icon: IconShoppingBag,
-      current: location.pathname === "/account/stock",
+      to: "",
+      icon: FaSwatchbook,
+      current: location.pathname.startsWith("/account/production"),
       roles: ["SUPERADMIN", "ADMIN", "MANAGER"],
+      children: [
+        {
+          name: "Suppliers",
+          to: "/stock/suppliers",
+          current: location.pathname === "/stock/suppliers",
+        },
+        {
+          name: "Items",
+          to: "/stock/items",
+          current: location.pathname === "/stock/items",
+        },
+        // {
+        //   name: "Stock in",
+        //   to: "/stock/stock-in",
+        //   current: location.pathname === "/stock/stock-in",
+        // },
+        // {
+        //   name: "Stock out",
+        //   to: "/stock/stock-out",
+        //   current: location.pathname === "/stock/stock-out",
+        // },
+      ],
     },
-    {
-      name: "Stock Transactions",
-      to: "/account/stock_transactions",
-      icon: IconShoppingBag,
-      current: location.pathname === "/account/stock_transactions",
-      roles: ["SUPERADMIN", "ADMIN", "MANAGER"],
-    },
+    // {
+    //   name: "Stock",
+    //   to: "/account/stock",
+    //   icon: IconShoppingBag,
+    //   current: location.pathname === "/account/stock",
+    //   roles: ["SUPERADMIN", "ADMIN", "MANAGER"],
+    // },
+    // {
+    //   name: "Stock Transactions",
+    //   to: "/account/stock_transactions",
+    //   icon: IconShoppingBag,
+    //   current: location.pathname === "/account/stock_transactions",
+    //   roles: ["SUPERADMIN", "ADMIN", "MANAGER"],
+    // },
     {
       name: "Health",
       to: "/account/health",

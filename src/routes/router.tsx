@@ -18,6 +18,10 @@ import ProfilePage from '@/app/profile';
 import AdminLayout from '@/components/Admin/DefaultLayout';
 import Home from "@/app/home";
 import Health from "@/app/dashboard/health";
+import Suppliers from "@/app/dashboard/suppliers";
+import StockItems from "@/app/dashboard/items";
+import AboutUs from "@/app/home/About";
+import ServicesCard from "@/app/home/Service";
 
 
 export default function AppRoutes() {
@@ -26,8 +30,10 @@ export default function AppRoutes() {
         {/* <Header />
         <Sidebar /> */}
         <Routes>
-            <Route path="/" element={<Navigate to="/login" />} />
-            <Route path="*" element={<Navigate to="/login" />} />
+            <Route path="/" element={<Navigate to="/home" />} />
+            <Route path="*" element={<Navigate to="/home" />} />
+            {/* <Route path="/about" element={<AboutUs />}/> */}
+            {/* <Route path="/services" element={<ServicesCard />}/> */}
             <Route path="login" element={<Login />} />
             <Route path="home" element={<Home />} />
             <Route path="choose-farm" element={<ChooseFarm />} />
@@ -45,6 +51,19 @@ export default function AppRoutes() {
                 <Route path='stock_transactions' element={<StockTransactionManagement />} />
                 <Route path='cattle' element={<CattleList />} />
                 <Route path='health' element={<Health />} />
+            </Route>
+            <Route path="stock/" element={<AdminLayout />}>
+
+                <Route index element={<Widget />} />
+                {/* <Route path='production' element={<Production />} /> */}
+                <Route path='suppliers' element={<Suppliers />} />
+                <Route path='items' element={<StockItems />} />
+                {/* <Route path='waste-logs' element={<WasteLogManagement />} />
+                <Route path='production_totals' element={<ProductionTotals />} />
+                <Route path='production_transactions' element={<ProductionTransactions />} />
+                <Route path='stock_transactions' element={<StockTransactionManagement />} />
+                <Route path='cattle' element={<CattleList />} />
+                <Route path='health' element={<Health />} /> */}
             </Route>
         </Routes>
         </>
