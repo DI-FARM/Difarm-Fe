@@ -90,6 +90,13 @@ const Sidebar = () => {
       roles: ["SUPERADMIN", "ADMIN", "MANAGER"],
     },
     {
+      name: "Monitoring",
+      to: "/account/monitoring",
+      icon: IconTrashLines,
+      current: location.pathname === "/account/monitoring",
+      roles: ["SUPERADMIN", "ADMIN", "MANAGER"],
+    },
+    {
       name: "Stock",
       to: "",
       icon: FaSwatchbook,

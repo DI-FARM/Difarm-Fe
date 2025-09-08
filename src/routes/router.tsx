@@ -22,6 +22,7 @@ import Suppliers from "@/app/dashboard/suppliers";
 import StockItems from "@/app/dashboard/items";
 import AboutUs from "@/app/home/About";
 import ServicesCard from "@/app/home/Service";
+import Monitoring from "@/app/dashboard/monitoring";
 
 
 export default function AppRoutes() {
@@ -46,6 +47,7 @@ export default function AppRoutes() {
                 <Route path='production' element={<Production />} />
                 <Route path='stock' element={<StockManagement />} />
                 <Route path='waste-logs' element={<WasteLogManagement />} />
+                <Route path='monitoring' element={<Monitoring />} />
                 <Route path='production_totals' element={<ProductionTotals />} />
                 <Route path='production_transactions' element={<ProductionTransactions />} />
                 <Route path='stock_transactions' element={<StockTransactionManagement />} />
