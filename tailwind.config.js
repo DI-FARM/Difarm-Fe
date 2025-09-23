@@ -61,6 +61,9 @@ module.exports = {
                     light: '#e0e6ed',
                     dark: '#888ea8',
                 },
+                shimmer:{
+                    gray:'#F3F4F6',
+                }
             },
             fontFamily: {
                 outfit: "Outfit",
