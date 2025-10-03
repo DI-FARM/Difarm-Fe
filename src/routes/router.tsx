@@ -22,6 +22,8 @@ import Suppliers from "@/app/dashboard/suppliers";
 import StockItems from "@/app/dashboard/items";
 import AboutUs from "@/app/home/About";
 import ServicesCard from "@/app/home/Service";
+import MetricsPage from "@/app/dashboard/OverView/MetricsPage";
+import Overview from "@/app/dashboard/OverView";
 
 
 export default function AppRoutes() {
@@ -39,7 +41,8 @@ export default function AppRoutes() {
             <Route path="choose-farm" element={<ChooseFarm />} />
             <Route path="account/:year?" element={<AdminLayout />}>
 
-                <Route index element={<Widget />} />
+                {/* <Route index element={<DashboardOverview />} /> */}
+                <Route index element={<Overview />} />
                 <Route path='profile' element={<ProfilePage />} />
                 <Route path='farms' element={<FarmsList />} />
                 <Route path='users' element={<Users />} />
