@@ -1,20 +1,24 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { api, queryString } from ".";
+import { getFarmId } from "@/utils/farmId";
 
 export const useCattle = () => {
   const [cattle, setCattle] = useState([]);
   const [allCattles, setallCattles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const farmId = localStorage.getItem("FarmId");
 
   const fetchCattle = async (query: any) => {
+    const farmId = getFarmId();
+    if (!farmId) {
+      setError("No farm selected. Choose a farm first.");
+      return;
+    }
     setLoading(true);
     setError(null);
 
     try {
-     
       const response = await api.get(`/cattles/${farmId}?${queryString(query)}`);
       setCattle(response.data);
     } catch (error: any) {
@@ -28,11 +32,14 @@ export const useCattle = () => {
     }
   };
   const fetchAllCattle = async () => {
+    const farmId = getFarmId();
+    if (!farmId) {
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get(`/cattles/${farmId}/all`);
-      console.log('alll',response.data);
+      const response = await api.get(`/cattles/${farmId}?pageSize=500`);
       setallCattles(response.data);
     } catch (error: any) {
       const errorMessage =
@@ -46,6 +53,11 @@ export const useCattle = () => {
   };
 
   const addCattle = async (cattleData: any) => {
+    const farmId = getFarmId();
+    if (!farmId) {
+      toast.error("No farm selected. Choose a farm first.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {

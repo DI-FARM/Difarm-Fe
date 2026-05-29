@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { AppDispatch, IRootState } from "@/store";
@@ -14,6 +14,7 @@ import Dropdown from "@/components/dropdown";
 import { storage } from "@/utils";
 import { isLoggedIn } from "@/hooks/api/auth";
 import { useGetFarmById } from "@/hooks/api/farms";
+import { getFarmId } from "@/utils/farmId";
 import IconCaretsDown from "../Icon/IconCaretsDown";
 import IconMenu from "../Icon/IconMenu";
 
@@ -29,15 +30,13 @@ const Header = () => {
 
   const [search, setSearch] = useState(false);
 
-  const authenticate = () => {
-    const user = isLoggedIn();
+  const user = isLoggedIn();
+
+  useEffect(() => {
     if (!user) {
       navigate("/login");
     }
-  };
-
-  authenticate();
-  const user = isLoggedIn();
+  }, [user, navigate]);
 
   const Logout = () => {
     storage.removeToken();
@@ -45,7 +44,7 @@ const Header = () => {
     navigate("/home");
   };
 
-  const farmId: any = localStorage.getItem("FarmId");
+  const farmId = getFarmId() ?? "";
   const { farm, loading, error }: any = useGetFarmById(farmId);
 
   return (

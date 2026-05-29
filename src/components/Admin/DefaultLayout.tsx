@@ -2,7 +2,8 @@ import {  Suspense, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Sidebar from './Sidebar';
 import Header from './Header';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { getFarmId } from '@/utils/farmId';
 import Footer from './Footer';
 import toast from 'react-hot-toast';
 import { storage } from '@/utils';
@@ -49,6 +50,22 @@ export default function AdminLayout() {
     }, []);
 
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (!storage.getToken()) return;
+        if (getFarmId()) return;
+
+        const path = location.pathname;
+        const farmOptional =
+            path.startsWith('/account/farms') ||
+            path.startsWith('/account/users') ||
+            path === '/account/activity-logs';
+
+        if (!farmOptional) {
+            navigate('/choose-farm', { replace: true });
+        }
+    }, [location.pathname, navigate]);
 
     const storedToken: any = storage.getToken();
    

@@ -25,10 +25,10 @@ import {
   Legend,
 } from "recharts";
 import { GiCow } from "react-icons/gi";
-import { set } from "lodash";
+import { getFarmId } from "@/utils/farmId";
 
 const StatisticsDashboard = () => {
-  const farmId: any = localStorage.getItem("FarmId");
+  const farmId = getFarmId();
   const [cattleSummYear, setcattleSummYear] = useState<string>(
     new Date().getFullYear().toString()
   );
@@ -42,8 +42,11 @@ const StatisticsDashboard = () => {
   } = useGetFarmSummary();
 
   useEffect(() => {
-    getCattleSummary(cattleSummYear, farmId).finally(() => setYearChangeLoading(false));
-  }, [cattleSummYear]);
+    if (!farmId) return;
+    getCattleSummary(cattleSummYear, farmId).finally(() =>
+      setYearChangeLoading(false)
+    );
+  }, [cattleSummYear, farmId]);
 
   function handlecattleSummYearChange(e: any) {
     setcattleSummYear(e.target.value);

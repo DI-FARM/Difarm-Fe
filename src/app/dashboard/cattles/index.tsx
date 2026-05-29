@@ -11,9 +11,17 @@ import AddCattleModal from "./add_cattle";
 import UpdateCattleModal from "./update_cattle";
 import ConfirmDeleteModal from "./delete_cattle";
 import { useSearchParams } from "react-router-dom";
+import { isLoggedIn } from "@/hooks/api/auth";
+import { getFarmId } from "@/utils/farmId";
+import { canCreateEntity, canUpdateEntity, canDeleteEntity } from "@/utils/permissions";
 
 const CattleList = () => {
   const [searchParams] = useSearchParams();
+  const user = isLoggedIn();
+  const role = user?.role ?? "";
+  const canCreate = canCreateEntity("cattle", role);
+  const canUpdate = canUpdateEntity("cattle", role);
+  const canDelete = canDeleteEntity("cattle", role);
   const { cattle, allCattles, loading, fetchCattle, fetchAllCattle, deleteCattle }: any = useCattle();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -48,12 +56,16 @@ const CattleList = () => {
     setIsDeleteModalOpen(true);
   };
 
+  const farmId = getFarmId();
+
   useEffect(() => {
+    if (!farmId) return;
     fetchCattle(searchParams);
-  }, [searchParams]);
+  }, [searchParams, farmId]);
   useEffect(() => {
+    if (!farmId) return;
     fetchAllCattle();
-  }, []);
+  }, [farmId]);
 
   const columns: TableColumnV2<any>[] = [
     {
@@ -165,20 +177,28 @@ const CattleList = () => {
       accessor: "created_at",
       render: (row) => <p>{formatDateToLongForm(row?.createdAt)}</p>,
     },
-    {
-      title: "Actions",
-      accessor: "actions",
-      render: (row) => (
-        <div className="flex gap-2 justify-center">
-          <button onClick={() => openUpdateModal(row)} className="">
-            <IconEdit className="text-primary" />
-          </button>
-          <button onClick={() => openDeleteModal(row)} className="">
-            <IconTrash className="text-danger" />
-          </button>
-        </div>
-      ),
-    },
+    ...((canUpdate || canDelete)
+      ? [
+          {
+            title: "Actions",
+            accessor: "actions",
+            render: (row: any) => (
+              <div className="flex gap-2 justify-center">
+                {canUpdate && (
+                  <button onClick={() => openUpdateModal(row)}>
+                    <IconEdit className="text-primary" />
+                  </button>
+                )}
+                {canDelete && (
+                  <button onClick={() => openDeleteModal(row)}>
+                    <IconTrash className="text-danger" />
+                  </button>
+                )}
+              </div>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -196,25 +216,27 @@ const CattleList = () => {
         </li>
       </ol>
 
-      <div className="flex flex-row justify-end gap-2 mb-2">
-        <button
-          type="button"
-          onClick={() => setIsAddModalOpen(true)}
-          className="btn btn-primary flex items-center gap-1"
-        >
-          <IconPlus />
-          Add Cattle
-        </button>
-      </div>
+      {canCreate && (
+        <div className="flex flex-row justify-end gap-2 mb-2">
+          <button
+            type="button"
+            onClick={() => setIsAddModalOpen(true)}
+            className="btn btn-primary flex items-center gap-1"
+          >
+            <IconPlus />
+            Add Cattle
+          </button>
+        </div>
+      )}
 
       <AddCattleModal
-        cattles={allCattles?.data ?? []}
+        cattles={allCattles?.data?.data ?? []}
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         handleRefetch={handleRefetch}
       />
       <UpdateCattleModal
-        cattles={allCattles?.data ?? []}
+        cattles={allCattles?.data?.data ?? []}
         isOpen={isUpdateModalOpen}
         onClose={() => {
           setSelectedCattle(null);

@@ -3,8 +3,11 @@ import { api } from "@/hooks/api";
 // Generic fetch helper with a type parameter
 export async function apiFetch<T>(endpoint: string): Promise<T> {
   const res = await api.get(endpoint);
-  if (res.status !== 200) {
-    throw new Error(`Failed to fetch: ${res.statusText}`);
+  if (res.status < 200 || res.status >= 300) {
+    throw new Error(
+      (res.data as { message?: string })?.message ||
+        `Failed to fetch: ${res.statusText}`
+    );
   }
   return res.data as T;
 }

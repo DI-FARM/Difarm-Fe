@@ -8,7 +8,7 @@ function AdminProtector() {
     useEffect(() => {
       
 
-        if (!user || user.role !=="admin" ) {
+        if (!user || !['SUPERADMIN', 'ADMIN', 'MANAGER', 'VETERINARIAN'].includes(user.role)) {
             navigate('/login');
         }
         

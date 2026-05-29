@@ -4,13 +4,15 @@ import { farmApi, InseminationData, VaccinationData } from "@/lib/api";
 import LineChart from "@/components/custom/LineChart";
 import ChartWrapperShimmerCard from "@/components/custom/loaders/chart-wrapper-shimmer";
 import dayjs from "dayjs";
+import { getFarmId } from "@/utils/farmId";
+
 interface SeasonalData {
   insemination: InseminationData;
   vaccination: VaccinationData;
 }
 export default function OverTime() {
-  const farmId = localStorage.getItem("FarmId");
-  const [value, setValue] = useState<number | null>(2025);
+  const farmId = getFarmId();
+  const [value, setValue] = useState<number>(new Date().getFullYear());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [seasonalData, setSeasonalData] = useState<SeasonalData | null>(null);
@@ -18,28 +20,53 @@ export default function OverTime() {
     setValue(year);
   };
 
-  async function getFarmMetrics() {
-    setLoading(true);
-    setError(null);
-    try {
-      const [insemination, vaccination] = await Promise.all([
-        farmApi.getInseminationsByYear(farmId || "", value?.toString() || ""),
-        farmApi.getVaccinationsByYear(farmId || "", value?.toString() || ""),
-      ]);
-
-      setSeasonalData({
-        insemination: insemination.data,
-        vaccination: vaccination.data,
-      });
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  }
   useEffect(() => {
+    if (!farmId) {
+      setError("No farm selected.");
+      setSeasonalData(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function getFarmMetrics() {
+      setLoading(true);
+      setError(null);
+      try {
+        const year = String(value);
+        const [insemination, vaccination] = await Promise.all([
+          farmApi.getInseminationsByYear(farmId, year),
+          farmApi.getVaccinationsByYear(farmId, year),
+        ]);
+
+        if (cancelled) return;
+        setSeasonalData({
+          insemination: insemination.data,
+          vaccination: vaccination.data,
+        });
+      } catch (err: unknown) {
+        if (cancelled) return;
+        const message =
+          err instanceof Error ? err.message : "Something went wrong";
+        setError(message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
     getFarmMetrics();
+    return () => {
+      cancelled = true;
+    };
   }, [value, farmId]);
+
+  if (!farmId) {
+    return (
+      <p className="mt-5 text-gray-600 dark:text-gray-400">
+        No farm selected. Choose a farm to view health and breeding charts.
+      </p>
+    );
+  }
 
   return (
     <div className="mt-5 p-2">

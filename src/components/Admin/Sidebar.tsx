@@ -35,14 +35,14 @@ const Sidebar = () => {
       to: "/account",
       icon: IconHome,
       current: location.pathname === "/account",
-      roles: ["SUPERADMIN", "ADMIN", "MANAGER"],
+      roles: ["SUPERADMIN", "ADMIN", "MANAGER", "VETERINARIAN"],
     },
     {
       name: "Users",
       to: "/account/users",
       icon: IconUsers,
       current: location.pathname === "/account/users",
-      roles: ["SUPERADMIN"],
+      roles: ["SUPERADMIN", "ADMIN"],
     },
     {
       name: "Farms",
@@ -56,7 +56,7 @@ const Sidebar = () => {
       to: "/account/cattle",
       icon: FaAnchor,
       current: location.pathname === "/account/cattle",
-      roles: ["SUPERADMIN", "ADMIN", "MANAGER"],
+      roles: ["SUPERADMIN", "ADMIN", "MANAGER", "VETERINARIAN"],
     },
     {
       name: "Production",
@@ -137,7 +137,14 @@ const Sidebar = () => {
       to: "/account/health",
       icon: IconBolt,
       current: location.pathname === "/account/health",
-      roles: ["SUPERADMIN", "ADMIN", "MANAGER"],
+      roles: ["SUPERADMIN", "ADMIN", "MANAGER", "VETERINARIAN"],
+    },
+    {
+      name: "Activity logs",
+      to: "/account/activity-logs",
+      icon: IconHelpCircle,
+      current: location.pathname === "/account/activity-logs",
+      roles: ["SUPERADMIN", "ADMIN", "MANAGER", "VETERINARIAN"],
     },
   ];
 

@@ -1,5 +1,5 @@
 import { useFarms } from "@/hooks/api/farms";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AddFarmModal from "./add_farm";
 import DataTableV2, { TableColumnV2 } from "@/components/datatable";
 import formatDateToLongForm from "@/utils/DateFormattter";
@@ -9,20 +9,90 @@ import IconHome from "@/components/Icon/IconHome";
 import UpdateFarmModal from "./update";
 import IconTrash from "@/components/Icon/IconTrash";
 import IconPencil from "@/components/Icon/IconPencil";
+import IconEye from "@/components/Icon/IconEye";
 import ConfirmDeleteModal from "./delete";
-import { isLoggedIn } from "@/hooks/api/auth";
+import { useNavigate } from "react-router-dom";
+import { isLoggedIn, useFetchUsers } from "@/hooks/api/auth";
+import { activateFarm as activateFarmApi } from "@/hooks/api/farms";
+import toast from "react-hot-toast";
+import { setFarmId } from "@/utils/farmId";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 const FarmsList = () => {
-  const { farms, loading, error, fetchFarms }: any = useFarms();
+  const navigate = useNavigate();
+  const user = isLoggedIn();
+  const isSuperAdmin = user?.role === "SUPERADMIN";
+  const canViewFarmDetail = ["SUPERADMIN", "ADMIN", "MANAGER"].includes(user?.role ?? "");
+  const { farms, loading, error, fetchFarms } = useFarms({ autoFetch: false });
+  const { users: allUsers, fetchUsers } = useFetchUsers();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isDketeModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [selectedFarm, setSelectedFarm] = useState<any>(null);
-  const user = isLoggedIn();
- 
 
-  const columns: TableColumnV2<any>[] = [
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [searchFilter, setSearchFilter] = useState<string>("");
+  const [locationFilter, setLocationFilter] = useState<string>("");
+  const [ownerFilter, setOwnerFilter] = useState<string>("");
+
+  useEffect(() => {
+    if (isSuperAdmin) {
+      fetchUsers({});
+    }
+  }, [isSuperAdmin]);
+
+  useEffect(() => {
+    if (isSuperAdmin) {
+      fetchFarms({
+        status: statusFilter || undefined,
+        search: searchFilter || undefined,
+        location: locationFilter || undefined,
+        ownerId: ownerFilter || undefined,
+      });
+    } else {
+      fetchFarms();
+    }
+  }, [isSuperAdmin, statusFilter, searchFilter, locationFilter, ownerFilter]);
+
+  const handleActivate = async (farmId: string) => {
+    try {
+      await activateFarmApi(farmId);
+      toast.success("Farm activated");
+      fetchFarms(
+        isSuperAdmin
+          ? {
+              status: statusFilter || undefined,
+              search: searchFilter || undefined,
+              location: locationFilter || undefined,
+              ownerId: ownerFilter || undefined,
+            }
+          : undefined
+      );
+    } catch (e: any) {
+      toast.error(e.response?.data?.message || "Failed to activate farm");
+    }
+  };
+
+  const handleRefetch = () => {
+    if (isSuperAdmin) {
+      fetchFarms({
+        status: statusFilter || undefined,
+        search: searchFilter || undefined,
+        location: locationFilter || undefined,
+        ownerId: ownerFilter || undefined,
+      });
+    } else {
+      fetchFarms();
+    }
+  };
+
+  const farmList = farms?.data ?? [];
+  const adminUsers = (allUsers?.data?.data ?? []).filter(
+    (u: any) => u.account?.role === "ADMIN"
+  );
+
+  const baseColumns: TableColumnV2<any>[] = [
     {
       title: "Name",
       accessor: "name",
@@ -36,7 +106,7 @@ const FarmsList = () => {
     {
       title: "Size",
       accessor: "size",
-      render: (row) => <p>{capitalize(row?.size)}</p>,
+      render: (row) => <p>{capitalize(String(row?.size))}</p>,
     },
     {
       title: "Type",
@@ -44,78 +114,168 @@ const FarmsList = () => {
       render: (row) => <p>{capitalize(row?.type)}</p>,
     },
     {
-      title: "Owner  name",
+      title: "Owner",
       accessor: "owner.name",
-      render: (row) => <p>{capitalize(row?.owner.fullname)}</p>,
+      render: (row) => (
+        <p>{row?.owner ? capitalize(row.owner.fullname) : "—"}</p>
+      ),
     },
-
     {
       title: "Date Created",
-      accessor: "created_at",
+      accessor: "createdAt",
       render: (row) => <p>{formatDateToLongForm(row?.createdAt)}</p>,
     },
-  
   ];
-  
-  {user?.role === "SUPERADMIN" && (
-    columns.push(  {
-        title: "Actions",
-        accessor: "actions",
-        render: (row) => (
-          <div className="flex gap-2 justify-center">
-            <button
-              onClick={() => {
-                setSelectedFarm(row);
-                setIsUpdateModalOpen(true);
-              }}
-              className=""
-            >
-              <IconPencil />
-            </button>
-            <button
-              onClick={() => {
-                setSelectedFarm(row);
-                setIsDeleteModalOpen(true);
-              }}
-              className=""
-            >
-              <IconTrash />
-            </button>
-          </div>
-        ),
-      },)
-  )}
 
-  const handleRefetch = () => {
-    fetchFarms();
+  const statusColumn: TableColumnV2<any> = {
+    title: "Status",
+    accessor: "status",
+    render: (row) => (
+      <span
+        className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+          row?.status
+            ? "bg-success-light text-success dark:bg-success-dark-light dark:text-success"
+            : "bg-warning-light text-warning dark:bg-warning-dark-light dark:text-warning"
+        }`}
+      >
+        {row?.status ? "Activated" : "Pending"}
+      </span>
+    ),
   };
 
+  const actionsColumn: TableColumnV2<any> = {
+    title: "Actions",
+    accessor: "actions",
+    render: (row) => (
+      <div className="flex gap-2 justify-center items-center">
+        {canViewFarmDetail && (
+          <button
+            type="button"
+            onClick={() => {
+              setFarmId(row.id);
+              navigate(`/account/farms/${row?.id}`);
+            }}
+            className="text-primary hover:underline"
+            title="View farm details"
+          >
+            <IconEye className="w-5 h-5" />
+          </button>
+        )}
+        {isSuperAdmin && !row?.status && (
+          <button
+            type="button"
+            onClick={() => handleActivate(row?.id)}
+            className="text-primary hover:underline text-sm"
+          >
+            Activate
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedFarm(row);
+            setIsUpdateModalOpen(true);
+          }}
+        >
+          <IconPencil className="text-primary" />
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedFarm(row);
+            setIsDeleteModalOpen(true);
+          }}
+        >
+          <IconTrash className="text-danger" />
+        </button>
+      </div>
+    ),
+  };
+
+  const columns: TableColumnV2<any>[] = isSuperAdmin
+    ? [...baseColumns, statusColumn, actionsColumn]
+    : [...baseColumns, actionsColumn];
+
   return (
-    <div className="">
-      <ol className="flex text-gray-500 font-semibold dark:text-white-dark">
+    <div className="p-4">
+      <ol className="flex text-gray-500 font-semibold dark:text-white-dark text-sm">
         <li>
-          <button className="hover:text-gray-500/70 dark:hover:text-white-dark/70">
+          <button
+            type="button"
+            onClick={() => window.history.back()}
+            className="hover:text-gray-500/70 dark:hover:text-white-dark/70"
+          >
             <IconHome />
           </button>
         </li>
         <li className="before:content-['/'] before:px-1.5">
-          <button className="text-black dark:text-white-light hover:text-black/70 dark:hover:text-white-light/70">
-            Farms
-          </button>
+          <span className="text-black dark:text-white-light">Farms</span>
         </li>
       </ol>
 
-      {user?.role === "SUPERADMIN" && (
-        <div className="flex flex-row justify-end gap-2 mb-2">
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-4 mt-2">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Farms
+        </h1>
+        {isSuperAdmin && (
           <button
             type="button"
             onClick={() => setIsAddModalOpen(true)}
-            className="btn btn-primary"
+            className="btn btn-primary inline-flex items-center gap-2"
           >
-            <IconPlus />
-            Add Farm
+            <IconPlus className="w-5 h-5" />
+            Create new farm
           </button>
+        )}
+      </div>
+
+      {isSuperAdmin && (
+        <div className="flex flex-wrap gap-3 mb-6 p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <div className="flex flex-wrap items-center gap-3 flex-1 min-w-0">
+            <div className="relative flex-1 min-w-[140px] max-w-xs">
+              <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by farm name"
+                value={searchFilter}
+                onChange={(e) => setSearchFilter(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-primary"
+              />
+            </div>
+            <input
+              type="text"
+              placeholder="Location / District"
+              value={locationFilter}
+              onChange={(e) => setLocationFilter(e.target.value)}
+              className="form-input w-auto min-w-[140px] py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600"
+            />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="form-select py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 min-w-[120px]"
+            >
+              <option value="">All statuses</option>
+              <option value="true">Activated</option>
+              <option value="false">Pending</option>
+            </select>
+            <select
+              value={ownerFilter}
+              onChange={(e) => setOwnerFilter(e.target.value)}
+              className="form-select py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 min-w-[140px]"
+            >
+              <option value="">All owners</option>
+              {adminUsers.map((u: any) => (
+                <option key={u.id} value={u.id}>
+                  {u.fullname}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+      )}
+
+      {error && (
+        <p className="text-danger text-sm mb-2">{error}</p>
       )}
 
       <AddFarmModal
@@ -131,7 +291,7 @@ const FarmsList = () => {
         handleRefetch={handleRefetch}
       />
       <ConfirmDeleteModal
-        isOpen={isDketeModalOpen}
+        isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         farm={selectedFarm}
         handleRefetch={handleRefetch}
@@ -143,13 +303,19 @@ const FarmsList = () => {
           previousPage={0}
           nextPage={0}
           currentPage={1}
-          data={farms?.data ?? []}
-          total={farms?.data?.length ?? 0}
+          data={farmList}
+          total={farmList.length}
           lastPage={1}
           isLoading={loading}
-          tableName={"Farms"}
+          tableName="Farms"
         />
       </div>
+
+      {!loading && farmList.length > 0 && (
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          Showing {farmList.length} farm(s)
+        </p>
+      )}
     </div>
   );
 };

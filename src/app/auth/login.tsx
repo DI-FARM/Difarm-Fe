@@ -22,8 +22,9 @@ const Login: React.FC = () => {
         e.preventDefault();
         const response = await login(credentials);
         if (response) {
+            const role = response?.user?.userFound?.role;
             navigate('/choose-farm');
-        } 
+        }
     };
 
     return (

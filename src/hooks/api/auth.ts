@@ -2,11 +2,9 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { api, queryString } from '.';
 import { storage } from '@/utils';
+import { clearFarmId } from '@/utils/farmId';
 import jwt_decode from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
-
-export const baseURL = 'https://unipod.ur.ac.rw:4000';
-
 
 export const useLogin = () => {
     const [loadingLogin, setLoadingLogin] = useState(false);
@@ -23,6 +21,7 @@ export const useLogin = () => {
             const response = await api.post(`/auth/login`, credentials);
             const { token, userFound } = response.data.user;
             storage.setToken(token);
+            clearFarmId();
             localStorage.setItem('Farm_user', JSON.stringify(userFound));
             setLoginSuccess(true);
             toast.success(`Login successful! Welcome ${userFound.username}`);
@@ -69,21 +68,25 @@ export const isLoggedIn = () => {
 };
 
 export const useFetchUsers = () => {
-    const [users, setUsers] = useState([]);
+    const [users, setUsers] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchUsers = async () => {
+    const fetchUsers = async (params?: { role?: string; status?: string; page?: number; pageSize?: number }) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await api.get(`/auth/users`);
+            const q = new URLSearchParams();
+            if (params?.role) q.set('role', params.role);
+            if (params?.status !== undefined && params?.status !== '') q.set('status', params.status === 'active' || params.status === 'true' ? 'true' : 'false');
+            if (params?.page) q.set('page', String(params.page));
+            if (params?.pageSize) q.set('pageSize', String(params.pageSize));
+            const response = await api.get(`/auth/users?${q.toString()}`);
             setUsers(response.data);
         } catch (error: any) {
             const errorMessage =
                 error.response?.data?.message ||
                 'An error occurred while fetching users.';
-            
             setError(errorMessage);
         } finally {
             setLoading(false);
@@ -97,6 +100,15 @@ export const useFetchUsers = () => {
         fetchUsers,
     };
 };
+
+export const activateAccount = (accountId: string) =>
+    api.patch(`/auth/accounts/${accountId}/activate`);
+
+export const registerVeterinarian = (data: any) =>
+    api.post('/auth/register/veterinarian', data);
+
+export const fetchUserDetail = (userId: string) =>
+    api.get(`/users/detail/${userId}`);
 
 
 export const useUsers = () => {

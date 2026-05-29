@@ -3,18 +3,32 @@ import axios from 'axios';
 import { api } from '.';
 import toast from 'react-hot-toast';
 
-export const useFarms = () => {
-    const [farms, setFarms] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+export type FarmFilters = {
+    status?: string;
+    search?: string;
+    location?: string;
+    ownerId?: string;
+};
 
-    const fetchFarms = useCallback(async () => {
+export const useFarms = (options?: { autoFetch?: boolean }) => {
+    const autoFetch = options?.autoFetch !== false;
+    const [farms, setFarms] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const fetchFarms = useCallback(async (params?: FarmFilters) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await api.get('/farms');
+            const q = new URLSearchParams();
+            if (params?.status !== undefined && params?.status !== '') q.set('status', params.status);
+            if (params?.search?.trim()) q.set('search', params.search.trim());
+            if (params?.location?.trim()) q.set('location', params.location.trim());
+            if (params?.ownerId?.trim()) q.set('ownerId', params.ownerId.trim());
+            const query = q.toString();
+            const response = await api.get(query ? `/farms?${query}` : '/farms');
             setFarms(response.data);
-        } catch (error:any) {
+        } catch (error: any) {
             setError(error.response?.data?.message || 'An error occurred while fetching farms.');
         } finally {
             setLoading(false);
@@ -22,8 +36,10 @@ export const useFarms = () => {
     }, []);
 
     useEffect(() => {
-        fetchFarms();
-    }, [fetchFarms]);
+        if (autoFetch) {
+            fetchFarms();
+        }
+    }, [autoFetch, fetchFarms]);
 
     return {
         farms,
@@ -140,3 +156,6 @@ export const useGetFarmById = (id: string) => {
 
     return { farm, loading, error };
 };
+
+export const activateFarm = (farmId: string) =>
+    api.patch(`/farms/${farmId}/activate`);
